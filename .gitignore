@@ -1,0 +1,20 @@
+# 项目级安装副本：技能源码以 skills/ 为准。
+/.agents/
+/.claude/
+
+# 查看器依赖、构建产物和测试缓存。
+/viewer/node_modules/
+/viewer/dist/
+/viewer/coverage/
+/viewer/.vite/
+*.tsbuildinfo
+
+# 本地配置与系统临时文件。
+.env
+.env.*
+*.log
+.DS_Store
+Thumbs.db
+
+# 空的误拼文件；正式说明文档是 README.md。
+/RAEDME.md

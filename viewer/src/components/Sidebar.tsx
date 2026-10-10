@@ -1,0 +1,123 @@
+/**
+ * 左侧边栏：搜索输入 + 目录树/过滤结果/搜索结果三态切换 + 主题切换。
+ *
+ * 输入框的两种意图（共识 Q9）：
+ * - 输入即过滤：按标题/路径匹配，树切换成扁平匹配列表
+ * - 回车全文搜索：调 /api/search，结果面板替代树；Esc 或「返回目录」退出搜索态
+ */
+import { useMemo, useState } from 'react'
+import type { TreeRoot, SearchResultItem } from '../../shared/types'
+import { TreeView } from './TreeView'
+import { SearchResults } from './SearchResults'
+import { filterFiles } from '../lib/filter'
+import { cx } from '../lib/cx'
+
+interface SidebarProps {
+  tree: TreeRoot
+  currentPath: string | null
+  expanded: Set<string>
+  onSelect: (path: string) => void
+  onToggleNode: (id: string) => void
+  /** null 表示不在全文搜索态 */
+  searchResults: SearchResultItem[] | null
+  searchQuery: string
+  searching: boolean
+  searchError: string | null
+  onSearch: (query: string) => void
+  onClearSearch: () => void
+  isDark: boolean
+  onToggleTheme: () => void
+}
+
+export function Sidebar({
+  tree,
+  currentPath,
+  expanded,
+  onSelect,
+  onToggleNode,
+  searchResults,
+  searchQuery,
+  searching,
+  searchError,
+  onSearch,
+  onClearSearch,
+  isDark,
+  onToggleTheme,
+}: SidebarProps) {
+  // 过滤文本只影响侧边栏展示，留在组件内部即可
+  const [filterText, setFilterText] = useState('')
+  const matches = useMemo(() => filterFiles(tree, filterText), [tree, filterText])
+  const filtering = filterText.trim() !== ''
+
+  return (
+    <div className="sidebar-inner">
+      <div className="sidebar-head">
+        <input
+          className="search-input"
+          type="text"
+          placeholder="输入过滤目录，回车全文搜索"
+          value={filterText}
+          onChange={(e) => {
+            setFilterText(e.target.value)
+            // 重新打字意味着回到过滤模式，退出上一次的搜索结果
+            if (searchResults !== null) onClearSearch()
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              onSearch(filterText.trim())
+            } else if (e.key === 'Escape') {
+              setFilterText('')
+              onClearSearch()
+            }
+          }}
+        />
+      </div>
+
+      <div className="sidebar-body">
+        {searchError && <div className="sidebar-error">{searchError}</div>}
+
+        {searchResults !== null ? (
+          searching ? (
+            <div className="sidebar-loading">搜索中…</div>
+          ) : (
+            <SearchResults
+              query={searchQuery}
+              results={searchResults}
+              onSelect={onSelect}
+              onBack={onClearSearch}
+            />
+          )
+        ) : filtering ? (
+          <div className="tree">
+            {matches.length === 0 && <div className="sidebar-loading">没有匹配的文件</div>}
+            {matches.map((f) => (
+              <button
+                type="button"
+                key={f.path}
+                className={cx('tree-item', 'tree-file', f.path === currentPath && 'active')}
+                title={f.path}
+                onClick={() => onSelect(f.path)}
+              >
+                {f.title}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <TreeView
+            nodes={tree}
+            currentPath={currentPath}
+            expanded={expanded}
+            onSelect={onSelect}
+            onToggle={onToggleNode}
+          />
+        )}
+      </div>
+
+      <div className="sidebar-foot">
+        <button type="button" className="ghost-btn" onClick={onToggleTheme}>
+          {isDark ? '切换到浅色' : '切换到深色'}
+        </button>
+      </div>
+    </div>
+  )
+}
