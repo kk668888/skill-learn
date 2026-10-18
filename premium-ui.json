@@ -1,0 +1,6 @@
+{
+  "sourceRoots": ["viewer/src"],
+  "ownership": {
+    "Select/Listbox": "native"
+  }
+}

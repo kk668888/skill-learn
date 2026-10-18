@@ -4,6 +4,9 @@
    ============================================================ */
 
 :root {
+  /* 标准滚动条属性覆盖 Firefox；下方 WebKit 规则沿用相同语义边线。 */
+  scrollbar-color: var(--border) transparent;
+  scrollbar-width: thin;
   --bg: #f6f8fa;
   --bg-panel: #ffffff;
   --bg-hover: #eef1f4;
@@ -735,61 +738,6 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   border-left-color: var(--accent);
   background: var(--accent-weak);
 }
-
-/* ---------- 代码高亮：暗色主题覆盖 ----------
-   浅色由 highlight.js/styles/github.css 提供（MarkdownBody 里引入） */
-
-:root[data-theme='dark'] .hljs {
-  color: #c9d1d9;
-  background: var(--pre-bg);
-}
-:root[data-theme='dark'] .hljs-keyword,
-:root[data-theme='dark'] .hljs-selector-tag,
-:root[data-theme='dark'] .hljs-meta {
-  color: #ff7b72;
-}
-:root[data-theme='dark'] .hljs-string,
-:root[data-theme='dark'] .hljs-regexp {
-  color: #a5d6ff;
-}
-:root[data-theme='dark'] .hljs-comment {
-  color: #8b949e;
-}
-:root[data-theme='dark'] .hljs-number,
-:root[data-theme='dark'] .hljs-literal {
-  color: #79c0ff;
-}
-:root[data-theme='dark'] .hljs-title,
-:root[data-theme='dark'] .hljs-title.function_,
-:root[data-theme='dark'] .hljs-class {
-  color: #d2a8ff;
-}
-:root[data-theme='dark'] .hljs-attr,
-:root[data-theme='dark'] .hljs-attribute,
-:root[data-theme='dark'] .hljs-variable,
-:root[data-theme='dark'] .hljs-template-variable {
-  color: #79c0ff;
-}
-:root[data-theme='dark'] .hljs-built_in {
-  color: #aff5b4;
-}
-:root[data-theme='dark'] .hljs-section,
-:root[data-theme='dark'] .hljs-name {
-  color: #7ee787;
-}
-:root[data-theme='dark'] .hljs-type,
-:root[data-theme='dark'] .hljs-class .hljs-title,
-:root[data-theme='dark'] .hljs-title.class_ { color: #ffa657; }
-:root[data-theme='dark'] .hljs-params,
-:root[data-theme='dark'] .hljs-subst,
-:root[data-theme='dark'] .hljs-property { color: #c9d1d9; }
-:root[data-theme='dark'] .hljs-symbol,
-:root[data-theme='dark'] .hljs-bullet,
-:root[data-theme='dark'] .hljs-link { color: #a5d6ff; }
-:root[data-theme='dark'] .hljs-meta .hljs-string,
-:root[data-theme='dark'] .hljs-doctag { color: #a5d6ff; }
-:root[data-theme='dark'] .hljs-addition { color: #aff5b4; background: rgba(46, 160, 67, 0.15); }
-:root[data-theme='dark'] .hljs-deletion { color: #ffa198; background: rgba(248, 81, 73, 0.15); }
 
 /* ---------- 响应式 ---------- */
 

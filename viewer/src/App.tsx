@@ -12,6 +12,7 @@ import type { CSSProperties } from 'react'
 import type { TreeRoot, DocResponse, SearchResultItem } from '../shared/types'
 import { fetchTree, fetchDoc, fetchSearch } from './api/client'
 import { useTheme } from './hooks/useTheme'
+import { useReadingTheme } from './hooks/useReadingTheme'
 import { useHashRoute } from './hooks/useHashRoute'
 import { collectAncestorIds } from './lib/filter'
 import { Sidebar } from './components/Sidebar'
@@ -48,6 +49,8 @@ function readPaneWidths(): PaneWidths {
 
 export default function App() {
   const [theme, toggleTheme] = useTheme()
+  // 阅读风格的状态独立于明暗模式，放在 App 才能跨文档保持选择。
+  const [readingTheme, chooseReadingTheme] = useReadingTheme()
   const [currentPath, navigate] = useHashRoute()
 
   // ---------- 三栏宽度 ----------
@@ -228,7 +231,7 @@ export default function App() {
         max={clampPaneWidth('sidebar', Infinity, visibleWidths.toc, viewportWidth)}
         onResize={handlePaneResize} />
 
-      <main className="main">
+      <main className="main" data-reading-theme={currentPath && doc ? readingTheme : undefined}>
         {!tree && !treeError && <div className="pane-message">目录加载中…</div>}
         {treeError && (
           <div className="pane-message pane-error">
@@ -259,7 +262,8 @@ export default function App() {
             )}
             {currentPath && docLoading && !doc && <div className="pane-message">文档加载中…</div>}
             {currentPath && doc && tree && (
-              <DocView doc={doc} tree={tree} onNavigate={handleSelect} />
+              <DocView doc={doc} tree={tree} onNavigate={handleSelect}
+                readingTheme={readingTheme} onReadingThemeChange={chooseReadingTheme} />
             )}
           </>
         )}

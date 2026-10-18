@@ -1,0 +1,83 @@
+---
+version: alpha
+name: "skill-learn viewer"
+description: "供中文技能文档阅读与对照的三栏查看器，应用外壳克制，正文提供四种阅读排版。"
+colors:
+  app-background: "#f6f8fa"
+  panel: "#ffffff"
+  text: "#1f2328"
+  muted: "#57606a"
+  border: "#d0d7de"
+  accent: "#0969da"
+  dark-background: "#0d1117"
+  dark-panel: "#161b22"
+  dark-text: "#e6edf3"
+  dark-accent: "#58a6ff"
+typography:
+  sans:
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif"
+  serif:
+    fontFamily: "'Songti SC', 'Noto Serif CJK SC', 'Source Han Serif SC', SimSun, serif"
+  mono:
+    fontFamily: "Consolas, 'Cascadia Code', 'Courier New', monospace"
+rounded:
+  control: "6px"
+  code: "8px"
+  pill: "999px"
+spacing:
+  sidebar-default: "300px"
+  toc-default: "230px"
+  pane-divider: "6px"
+  reading-max: "860px"
+components:
+  document: {}
+  sidebar: {}
+  table-of-contents: {}
+  reading-theme-select: {}
+  code-block: {}
+---
+
+# skill-learn viewer 设计约定
+
+## Overview
+
+查看器服务于阅读和对照 Superpowers、OpenSpec、grill 等工作流的中文文档。整体参照技术文档阅读器：目录和大纲稳定、信息密度适中，视觉表达集中在正文排版。用户主要在桌面查阅，也可在窄屏阅读；界面用中文，源码与文档可保留原有英文术语。
+
+应用外壳采用产品工具的安静语气。四种阅读样式是已批准的正文变体，不扩散到侧栏、大纲和欢迎页。避免把文档拆成卡片、加入装饰性渐变或用动效干扰连续阅读。
+
+运行时代码是颜色与尺寸的权威来源：全局变量在 `viewer/src/styles.css`，局部阅读变量在 `viewer/src/reading-themes.css`。本文件记录它们的语义和映射，不生成 CSS。修改上述持久变量时同步更新本文件并检查明暗两种模式。
+
+## Colors
+
+全站浅色使用 `--bg`、`--bg-panel`、`--text`、`--text-secondary`、`--border`、`--accent`，分别对应 frontmatter 的 `app-background`、`panel`、`text`、`muted`、`border`、`accent`。深色由根节点 `data-theme='dark'` 覆盖，背景、面板、正文和强调色分别对应 `dark-background`、`dark-panel`、`dark-text`、`dark-accent`。链接、选中项和焦点共用语义强调色。
+
+文档打开时，`.main[data-reading-theme]` 覆盖阅读区域的语义变量；经典文档以白/蓝为基准，纸张阅读用米白/赭色，简洁笔记用灰白/绿色，精致文章用暖白/暗红。每种风格在全局深色模式下有独立的正文、边线、强调色、引用与表格配色。围栏代码另用 `--reading-code-*` 和 `--syntax-*`，其文字颜色必须按代码块背景验证；精致文章的浅色正文也配深色代码块。表格悬停整行着色，焦点轮廓保持可辨。
+
+## Typography
+
+应用控件与经典文档、简洁笔记正文采用 frontmatter 的 `sans` 字体栈。纸张阅读正文和标题、精致文章标题采用 `serif`；代码及语言标签采用 `mono`。这些都是本地字体栈，不依赖在线字体。正文默认 15px、行高 1.75；纸张阅读和精致文章为 16px，行高分别为 1.9 和 1.85。正文宽度按风格限定，长代码和宽表格在自身容器横向滚动。
+
+## Layout
+
+桌面为目录、正文、大纲三栏，默认宽度对应 `sidebar-default`、`toc-default`，两条分隔轨各为 `pane-divider`。中屏隐藏大纲，窄屏把目录收起为入口。正文的最大宽度由 `--reading-measure` 控制，经典文档对应 `reading-max`；其余预设在运行时取 790–820px。文档头的面包屑与阅读样式控件可换行；390px 下保持完整标签与选项。
+
+## Elevation & Depth
+
+层级主要由面板底色、边线、文字权重和间距区分。侧栏使用轻微阴影，正文、引用和代码块不使用浮动卡片阴影。阅读进度是文档顶部的细线，不遮挡正文或控件。
+
+## Shapes
+
+输入和选择控件使用约 6px 圆角，代码容器使用 8px，文档互跳标签使用胶囊形。标题边线、引用强调条和表格分隔线承载结构信息；简洁笔记去掉多余标题边线，精致文章用小节左线和引用引号建立层次。
+
+## Components
+
+文档头展示位置、标题、关联文档、元数据和原生“阅读样式”选择控件。`premium-ui.json` 将 Select/Listbox 的归属明确为原生控件；四个固定选项接受系统弹出层的几何与键盘行为。选择即生效，保留可见焦点；选择的状态由 App 持有，跨文档复用，并独立于明暗偏好。导航仍使用既有侧栏、链接和大纲行为。
+
+代码块保留语言标签、复制按钮及成功或失败反馈；工具栏使用代码块自己的配色。加载、错误与空状态沿用原有文字提示。正文链接和按钮在悬停与键盘焦点下提供反馈；装饰性标题闪烁应尊重系统减弱动效设置。
+
+## Do's and Don'ts
+
+- **应当**用真实中文长文、表格及多语言代码检验阅读样式，覆盖明暗和窄屏。
+- **应当**让新阅读样式只改变主阅读区，并保留已选明暗模式和文档位置。
+- **避免**为每套风格复制整份 Markdown 结构规则，防止高亮、复制和响应式行为漂移。
+- **避免**给阅读页增加与查阅任务无关的品牌装饰或远程字体依赖。

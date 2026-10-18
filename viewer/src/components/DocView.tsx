@@ -7,14 +7,17 @@ import { collectFiles, findFileContext } from '../lib/filter'
 import { MarkdownBody } from './MarkdownBody'
 import { DocHeader } from './DocHeader'
 import { ReadingProgress } from './ReadingProgress'
+import type { ReadingTheme } from '../lib/readingTheme'
 
 interface DocViewProps {
   doc: DocResponse
   tree: TreeRoot
   onNavigate: (path: string) => void
+  readingTheme: ReadingTheme
+  onReadingThemeChange: (theme: ReadingTheme) => void
 }
 
-export function DocView({ doc, tree, onNavigate }: DocViewProps) {
+export function DocView({ doc, tree, onNavigate, readingTheme, onReadingThemeChange }: DocViewProps) {
   // 当前文件在树里的位置（套件/技能上下文）
   const context = useMemo(() => findFileContext(tree, doc.path), [tree, doc.path])
 
@@ -31,8 +34,9 @@ export function DocView({ doc, tree, onNavigate }: DocViewProps) {
 
   return (
     <article className="doc">
-      <ReadingProgress docPath={doc.path} />
-      <DocHeader doc={doc} context={context} crossLinks={crossLinks} onNavigate={onNavigate} />
+      <ReadingProgress docPath={doc.path} readingTheme={readingTheme} />
+      <DocHeader doc={doc} context={context} crossLinks={crossLinks} onNavigate={onNavigate}
+        readingTheme={readingTheme} onReadingThemeChange={onReadingThemeChange} />
       <MarkdownBody
         content={doc.content}
         filePath={doc.path}
