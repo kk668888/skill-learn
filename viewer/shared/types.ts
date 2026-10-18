@@ -20,6 +20,8 @@ export type DocRole =
   | 'suite-intro'
   /** 项目根级文档 */
   | 'root'
+  /** 独立的 AI 文章，不参与技能源码与中文文档配对 */
+  | 'article'
 
 /** 叶子节点：一个 md 文件 */
 export interface FileNode {
@@ -58,7 +60,7 @@ export interface SuiteNode {
   children: TreeNode[]
 }
 
-/** 根级文档分组（CLAUDE.md、README.md 等） */
+/** 普通文档分组（项目根级文档或 AI 文章），其子项都是文件 */
 export interface RootGroupNode {
   type: 'group'
   id: string
@@ -68,7 +70,7 @@ export interface RootGroupNode {
 
 export type TreeNode = FileNode | FolderNode | SkillNode | SuiteNode | RootGroupNode
 
-/** 侧边栏整棵树：若干套件 + 一个根级分组 */
+/** 侧边栏整棵树：若干套件 + 可选的文章分组 + 根级文档分组 */
 export type TreeRoot = (SuiteNode | RootGroupNode)[]
 
 /** GET /api/doc 的响应体 */

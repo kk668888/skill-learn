@@ -9,6 +9,7 @@
  *   skills/openspec/skills/<name>/ 就是靠这条规则识别的）
  * - docs/skills/<套件>/<技能名>-中文版.md / -详细设计讲解.md 按文件名前缀挂到同名技能
  * - docs/skills/<套件>/技能原理深度讲解.md 挂套件节点
+ * - docs/ai-docs/ 独立成组，不参与技能配对；README.md 作为入口排在文章前面
  * - 配不上的文档/散文件不丢弃，直接挂套件节点（宁可展示多余，不可静默丢数据）
  */
 import type {
@@ -61,6 +62,7 @@ export function buildTree(files: string[]): TreeRoot {
   const rootFiles = files.filter((f) => !f.includes('/')).sort()
   const skillFiles = files.filter((f) => f.startsWith('skills/'))
   const docFiles = files.filter((f) => f.startsWith('docs/skills/'))
+  const aiDocFiles = files.filter((f) => f.startsWith('docs/ai-docs/'))
 
   // ---------- 第二步：识别技能目录（含 SKILL.md 的目录） ----------
   const skillDirs = new Set<string>()
@@ -195,7 +197,22 @@ export function buildTree(files: string[]): TreeRoot {
     return { type: 'suite', id: `suite:${data.name}`, title: data.name, children }
   })
 
-  // ---------- 第六步：根级文档分组挂最后 ----------
+  // ---------- 第六步：普通文章独立成组，保留套件文档与文章的边界 ----------
+  // 导读 README 优先展示；其余文章按相对路径排序，新增文件无需维护固定清单。
+  const orderedAiDocs = [...aiDocFiles].sort((a, b) => {
+    const aIsReadme = a === 'docs/ai-docs/README.md'
+    const bIsReadme = b === 'docs/ai-docs/README.md'
+    if (aIsReadme !== bIsReadme) return aIsReadme ? -1 : 1
+    return a.localeCompare(b)
+  })
+  const aiDocsGroup: RootGroupNode = {
+    type: 'group',
+    id: 'ai-docs',
+    title: 'AI 文章',
+    children: orderedAiDocs.map((path) => fileNode(path, baseTitle(path.split('/').pop()!), 'article')),
+  }
+
+  // ---------- 第七步：根级文档分组挂最后 ----------
   const rootGroup: RootGroupNode = {
     type: 'group',
     id: 'root',
@@ -203,7 +220,8 @@ export function buildTree(files: string[]): TreeRoot {
     children: rootFiles.map((f) => fileNode(f, baseTitle(f), 'root')),
   }
 
-  return [...suiteNodes, rootGroup]
+  // 没有文章目录的微型项目不显示空组，保持原有空输入的树形约定。
+  return [...suiteNodes, ...(orderedAiDocs.length > 0 ? [aiDocsGroup] : []), rootGroup]
 }
 
 /**

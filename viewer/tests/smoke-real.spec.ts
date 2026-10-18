@@ -26,12 +26,19 @@ describe('真实仓库冒烟', () => {
       'openspec',
       'superpowers',
     ])
-    const group = tree.find((n) => n.type === 'group')
+    const group = tree.find((n) => n.type === 'group' && n.id === 'root')
     expect(group).toBeDefined()
   })
 
+  it('AI 文章可在目录树中阅读，并收录现有导读', () => {
+    const group = tree.find((n) => n.type === 'group' && n.id === 'ai-docs')
+    const paths = (group!.children as FileNode[]).map((c) => c.path)
+    expect(paths).toContain('docs/ai-docs/README.md')
+    expect(paths).toContain('docs/ai-docs/01-为什么AI时代需要硬性预算上限.md')
+  })
+
   it('README.md（改名后）进入根级分组', () => {
-    const group = tree.find((n) => n.type === 'group')
+    const group = tree.find((n) => n.type === 'group' && n.id === 'root')
     const paths = (group!.children as FileNode[]).map((c) => c.path)
     expect(paths).toContain('README.md')
     expect(paths).toContain('CLAUDE.md')

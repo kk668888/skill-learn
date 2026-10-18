@@ -6,7 +6,7 @@
  * 都在这里固定下来。
  */
 import { describe, it, expect } from 'vitest'
-import { buildTree } from '../server/tree-builder'
+import { buildTree, buildFileIndex } from '../server/tree-builder'
 import type { FileNode, SkillNode, FolderNode, TreeNode } from '../shared/types'
 
 /**
@@ -24,6 +24,9 @@ const FILES = [
   // 根级文档
   'README.md',
   'CLAUDE.md',
+  // AI 文章与技能文档分开：它们不应被误识别为技能套件。
+  'docs/ai-docs/README.md',
+  'docs/ai-docs/01-为什么需要预算上限.md',
   // superpowers：标准形态
   'skills/superpowers/brainstorming/SKILL.md',
   'skills/superpowers/brainstorming/visual-companion.md',
@@ -62,12 +65,27 @@ const childrenOf = (n: TreeNode): TreeNode[] => ('children' in n ? n.children : 
 
 describe('buildTree：根级文档', () => {
   it('根级 md 进入「根级文档」分组，角色为 root', () => {
-    const group = tree.find((n) => n.type === 'group')
+    // 同层还可能出现 AI 文章分组，按稳定 id 取得项目根级文档。
+    const group = tree.find((n) => n.type === 'group' && n.id === 'root')
     expect(group).toBeDefined()
     expect(group!.title).toBe('根级文档')
     const paths = (group!.children as FileNode[]).map((c) => c.path).sort()
     expect(paths).toEqual(['CLAUDE.md', 'README.md'])
     expect((group!.children as FileNode[]).every((c) => c.role === 'root')).toBe(true)
+  })
+})
+
+describe('buildTree：AI 文章', () => {
+  it('独立成组，并让文章与入口文档都能进入文件索引', () => {
+    const group = tree.find((n) => n.type === 'group' && n.id === 'ai-docs')
+    expect(group?.title).toBe('AI 文章')
+    const articles = (group?.children ?? []) as FileNode[]
+    expect(articles.map((file) => file.path)).toEqual([
+      'docs/ai-docs/README.md',
+      'docs/ai-docs/01-为什么需要预算上限.md',
+    ])
+    expect(articles.every((file) => file.role === 'article')).toBe(true)
+    expect(buildFileIndex(tree).get('docs/ai-docs/README.md')?.role).toBe('article')
   })
 })
 
