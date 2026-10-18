@@ -15,12 +15,14 @@ const files = scanProject(PROJECT_ROOT)
 const tree = buildTree(files)
 
 describe('真实仓库冒烟', () => {
-  it('五个套件齐全 + 根级文档分组', () => {
+  it('六个套件齐全 + 根级文档分组', () => {
     const suites = tree.filter((n) => n.type === 'suite').map((n) => n.title)
+    // 此处列出仓库实际维护的套件，新增套件时要同步检查扫描和树构建是否收录它。
     expect(suites).toEqual([
       'anthropics',
       'frontend-design-premium',
       'grill',
+      'impeccable',
       'openspec',
       'superpowers',
     ])
