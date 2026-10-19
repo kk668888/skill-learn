@@ -20,7 +20,7 @@ export type DocRole =
   | 'suite-intro'
   /** 项目根级文档 */
   | 'root'
-  /** 独立的 AI 文章，不参与技能源码与中文文档配对 */
+  /** 独立的普通文章（AI 文章及自建分组），不参与技能文档配对 */
   | 'article'
 
 /** 叶子节点：一个 md 文件 */
@@ -60,7 +60,7 @@ export interface SuiteNode {
   children: TreeNode[]
 }
 
-/** 普通文档分组（项目根级文档或 AI 文章），其子项都是文件 */
+/** 普通文档分组（项目根级文档、AI 文章或自建分组），其子项都是文件 */
 export interface RootGroupNode {
   type: 'group'
   id: string
@@ -103,4 +103,14 @@ export interface SearchResultItem {
 export interface SearchResponse {
   query: string
   results: SearchResultItem[]
+}
+
+/** 上传目标只允许已有普通分组，或在本次上传时创建一级新分组。 */
+export type UploadTarget =
+  | { kind: 'existing'; groupId: string }
+  | { kind: 'new'; name: string }
+
+/** POST /api/upload 成功后返回的路径沿用文档读取与路由的相对路径约定。 */
+export interface UploadResponse {
+  path: string
 }

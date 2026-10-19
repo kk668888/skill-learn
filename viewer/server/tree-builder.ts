@@ -9,7 +9,7 @@
  *   skills/openspec/skills/<name>/ 就是靠这条规则识别的）
  * - docs/skills/<套件>/<技能名>-中文版.md / -详细设计讲解.md 按文件名前缀挂到同名技能
  * - docs/skills/<套件>/技能原理深度讲解.md 挂套件节点
- * - docs/ai-docs/ 独立成组，不参与技能配对；README.md 作为入口排在文章前面
+ * - docs/ai-docs/ 与 docs/collections/<分组名>/ 独立成组，不参与技能配对；AI 导读排在文章前面
  * - 配不上的文档/散文件不丢弃，直接挂套件节点（宁可展示多余，不可静默丢数据）
  */
 import type {
@@ -63,6 +63,7 @@ export function buildTree(files: string[]): TreeRoot {
   const skillFiles = files.filter((f) => f.startsWith('skills/'))
   const docFiles = files.filter((f) => f.startsWith('docs/skills/'))
   const aiDocFiles = files.filter((f) => f.startsWith('docs/ai-docs/'))
+  const collectionFiles = files.filter((f) => f.startsWith('docs/collections/'))
 
   // ---------- 第二步：识别技能目录（含 SKILL.md 的目录） ----------
   const skillDirs = new Set<string>()
@@ -212,7 +213,28 @@ export function buildTree(files: string[]): TreeRoot {
     children: orderedAiDocs.map((path) => fileNode(path, baseTitle(path.split('/').pop()!), 'article')),
   }
 
-  // ---------- 第七步：根级文档分组挂最后 ----------
+  // ---------- 第七步：自建普通文档按第一级目录分组 ----------
+  // 路径是文档唯一 ID，分组只改变树的展示，不改读取和搜索的文件定位约定。
+  const collections = new Map<string, string[]>()
+  for (const path of collectionFiles) {
+    const rest = path.slice('docs/collections/'.length)
+    const slash = rest.indexOf('/')
+    if (slash <= 0) continue
+    const name = rest.slice(0, slash)
+    collections.set(name, [...(collections.get(name) ?? []), path])
+  }
+  const collectionGroups: RootGroupNode[] = [...collections.keys()]
+    .sort((a, b) => a.localeCompare(b))
+    .map((name) => ({
+      type: 'group',
+      id: `collection:${name}`,
+      title: name,
+      children: collections.get(name)!
+        .sort((a, b) => a.localeCompare(b))
+        .map((path) => fileNode(path, baseTitle(path.split('/').pop()!), 'article')),
+    }))
+
+  // ---------- 第八步：根级文档分组挂最后 ----------
   const rootGroup: RootGroupNode = {
     type: 'group',
     id: 'root',
@@ -221,7 +243,7 @@ export function buildTree(files: string[]): TreeRoot {
   }
 
   // 没有文章目录的微型项目不显示空组，保持原有空输入的树形约定。
-  return [...suiteNodes, ...(orderedAiDocs.length > 0 ? [aiDocsGroup] : []), rootGroup]
+  return [...suiteNodes, ...(orderedAiDocs.length > 0 ? [aiDocsGroup] : []), ...collectionGroups, rootGroup]
 }
 
 /**

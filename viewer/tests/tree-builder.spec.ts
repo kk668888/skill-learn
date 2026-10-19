@@ -27,6 +27,7 @@ const FILES = [
   // AI 文章与技能文档分开：它们不应被误识别为技能套件。
   'docs/ai-docs/README.md',
   'docs/ai-docs/01-为什么需要预算上限.md',
+  'docs/collections/读书笔记/第一章.md',
   // superpowers：标准形态
   'skills/superpowers/brainstorming/SKILL.md',
   'skills/superpowers/brainstorming/visual-companion.md',
@@ -86,6 +87,22 @@ describe('buildTree：AI 文章', () => {
     ])
     expect(articles.every((file) => file.role === 'article')).toBe(true)
     expect(buildFileIndex(tree).get('docs/ai-docs/README.md')?.role).toBe('article')
+  })
+})
+
+describe('buildTree：自建普通文档分组', () => {
+  it('将中文目录展示为独立分组，保留真实路径与普通文章角色', () => {
+    const group = tree.find((n) => n.type === 'group' && n.id === 'collection:读书笔记')
+    expect(group?.title).toBe('读书笔记')
+    expect(group?.children).toEqual([{
+      type: 'file',
+      path: 'docs/collections/读书笔记/第一章.md',
+      title: '第一章',
+      role: 'article',
+    }])
+    expect(buildFileIndex(tree).get('docs/collections/读书笔记/第一章.md')?.role).toBe('article')
+    expect(tree.find((n) => n.type === 'group' && n.id === 'ai-docs')?.title).toBe('AI 文章')
+    expect(tree.filter((n) => n.type === 'suite')).toHaveLength(3)
   })
 })
 

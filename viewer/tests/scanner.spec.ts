@@ -2,7 +2,7 @@
  * scanner 单元测试：目录扫描与排除规则。
  *
  * 用临时目录构造一个微型项目结构，验证：
- * - 只扫 includeDirs（skills/、docs/skills/、docs/ai-docs/）+ 根级 *.md
+ * - 只扫 includeDirs（技能、AI 文章、自建普通文档）+ 根级 *.md
  * - 跳过 node_modules 与点开头的隐藏目录
  * - 返回正斜杠相对路径且排序确定
  */
@@ -44,6 +44,8 @@ beforeAll(() => {
   put('docs', 'skills', 'superpowers', 'a-中文版.md')
   mk('docs', 'ai-docs')
   put('docs', 'ai-docs', 'README.md')
+  mk('docs', 'collections', '读书笔记')
+  put('docs', 'collections', '读书笔记', '第一章.md')
   put('README.md')
   put('CLAUDE.md')
   mk('viewer')
@@ -63,6 +65,7 @@ describe('scanProject', () => {
       'CLAUDE.md',
       'README.md',
       'docs/ai-docs/README.md',
+      'docs/collections/读书笔记/第一章.md',
       'docs/skills/superpowers/a-中文版.md',
       'skills/superpowers/a/SKILL.md',
       'skills/superpowers/a/references/x.md',

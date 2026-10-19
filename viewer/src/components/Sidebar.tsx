@@ -6,6 +6,7 @@
  * - 回车全文搜索：调 /api/search，结果面板替代树；Esc 或「返回目录」退出搜索态
  */
 import { useMemo, useState } from 'react'
+import type { RefObject } from 'react'
 import type { TreeRoot, SearchResultItem } from '../../shared/types'
 import { TreeView } from './TreeView'
 import { SearchResults } from './SearchResults'
@@ -27,6 +28,8 @@ interface SidebarProps {
   onClearSearch: () => void
   isDark: boolean
   onToggleTheme: () => void
+  onOpenUpload: () => void
+  uploadTriggerRef: RefObject<HTMLButtonElement>
 }
 
 export function Sidebar({
@@ -43,6 +46,8 @@ export function Sidebar({
   onClearSearch,
   isDark,
   onToggleTheme,
+  onOpenUpload,
+  uploadTriggerRef,
 }: SidebarProps) {
   // 过滤文本只影响侧边栏展示，留在组件内部即可
   const [filterText, setFilterText] = useState('')
@@ -114,6 +119,9 @@ export function Sidebar({
       </div>
 
       <div className="sidebar-foot">
+        <button ref={uploadTriggerRef} type="button" className="upload-open-btn" onClick={onOpenUpload}>
+          上传 Markdown
+        </button>
         <button type="button" className="ghost-btn" onClick={onToggleTheme}>
           {isDark ? '切换到浅色' : '切换到深色'}
         </button>

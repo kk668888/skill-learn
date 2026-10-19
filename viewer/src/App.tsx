@@ -2,15 +2,15 @@
  * 应用骨架：三栏布局（侧边栏 / 正文 / 大纲）+ 全局状态编排。
  *
  * 状态分工：
- * - 树：挂载时加载一次，之后由用户手动刷新页面重新拉取（md 增删改刷新即生效）
+ * - 树：挂载时加载；上传成功后立即重读磁盘目录并保留展开状态
  * - 当前文档：跟随 hash 路由，切换时请求 /api/doc（带取消，防快速切换时的竞态）
  * - 搜索：App 持有结果，侧边栏负责输入与展示
  * - 展开状态：App 持有，打开文档时自动展开其祖先链
  */
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
-import type { TreeRoot, DocResponse, SearchResultItem } from '../shared/types'
-import { fetchTree, fetchDoc, fetchSearch } from './api/client'
+import type { TreeRoot, DocResponse, SearchResultItem, UploadTarget } from '../shared/types'
+import { fetchTree, fetchDoc, fetchSearch, uploadMarkdown } from './api/client'
 import { useTheme } from './hooks/useTheme'
 import { useReadingTheme } from './hooks/useReadingTheme'
 import { useHashRoute } from './hooks/useHashRoute'
@@ -22,6 +22,7 @@ import { cx } from './lib/cx'
 import { WelcomePanel } from './components/WelcomePanel'
 import { readRecent, recordRecent } from './lib/recent'
 import { PaneResizeHandle } from './components/PaneResizeHandle'
+import { UploadDialog } from './components/UploadDialog'
 import {
   clampPaneWidth,
   DEFAULT_PANE_WIDTHS,
@@ -88,6 +89,7 @@ export default function App() {
   // ---------- 目录树 ----------
   const [tree, setTree] = useState<TreeRoot | null>(null)
   const [treeError, setTreeError] = useState<string | null>(null)
+  const [sidebarVersion, setSidebarVersion] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -195,6 +197,9 @@ export default function App() {
 
   // ---------- 移动端侧边栏 ----------
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [uploadOpen, setUploadOpen] = useState(false)
+  const [uploadNotice, setUploadNotice] = useState<string | null>(null)
+  const uploadTriggerRef = useRef<HTMLButtonElement>(null)
   const handleSelect = useCallback(
     (path: string) => {
       navigate(path)
@@ -203,13 +208,55 @@ export default function App() {
     [navigate],
   )
 
+  const closeUpload = useCallback(() => {
+    setUploadOpen(false)
+    // 原生 dialog 关闭后再归还焦点。窄屏取消时抽屉仍打开，应回到可见的
+    // 上传按钮；成功上传收起抽屉后，才回到主阅读区的“目录”入口。
+    window.setTimeout(() => {
+      const target = window.matchMedia('(max-width: 760px)').matches
+        && !document.querySelector('.sidebar.open')
+        ? document.querySelector<HTMLButtonElement>('.menu-btn')
+        : uploadTriggerRef.current
+      target?.focus()
+    }, 0)
+  }, [])
+
+  const handleUpload = useCallback(async (file: File, targetName: string, target: UploadTarget) => {
+    const { path } = await uploadMarkdown(file, targetName, target)
+    setUploadNotice(null)
+    try {
+      // 服务端落盘后重新读取权威目录，旧节点的展开状态保持不变。
+      const nextTree = await fetchTree()
+      setTree(nextTree)
+      const groupId = path.startsWith('docs/ai-docs/') ? 'ai-docs' : `collection:${path.split('/')[2]}`
+      setExpanded((previous) => new Set([...previous, groupId]))
+      setSidebarVersion((version) => version + 1) // 清除旧过滤词，使新分组可见。
+      setSearchResults(null)
+      setSearchQuery('')
+      setSearchError(null)
+    } catch {
+      // 上传已经成功，目录刷新失败不能当作“保存失败”让用户重复上传。
+      setUploadNotice('文档已保存，但目录暂未更新；刷新页面即可在分组中看到。')
+    }
+    navigate(path)
+    setSidebarOpen(false)
+  }, [navigate])
+
+  const uploadGroups = tree
+    ? [{ id: 'ai-docs', title: 'AI 文章' }, ...tree
+      .filter((node) => node.type === 'group' && node.id.startsWith('collection:'))
+      .map((node) => ({ id: node.id, title: node.title }))]
+    : []
+
   return (
     <div className="app" style={paneStyle}>
+      {uploadOpen && <UploadDialog groups={uploadGroups} onSubmit={handleUpload} onClose={closeUpload} />}
       {sidebarOpen && <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />}
 
       <aside id="viewer-sidebar" className={cx('sidebar', sidebarOpen && 'open')}>
         {tree && (
           <Sidebar
+            key={sidebarVersion}
             tree={tree}
             currentPath={currentPath}
             expanded={expanded}
@@ -223,6 +270,8 @@ export default function App() {
             onClearSearch={handleClearSearch}
             isDark={theme === 'dark'}
             onToggleTheme={toggleTheme}
+            onOpenUpload={() => setUploadOpen(true)}
+            uploadTriggerRef={uploadTriggerRef}
           />
         )}
       </aside>
@@ -232,6 +281,7 @@ export default function App() {
         onResize={handlePaneResize} />
 
       <main className="main" data-reading-theme={currentPath && doc ? readingTheme : undefined}>
+        {uploadNotice && <div className="upload-notice" role="status">{uploadNotice}</div>}
         {!tree && !treeError && <div className="pane-message">目录加载中…</div>}
         {treeError && (
           <div className="pane-message pane-error">

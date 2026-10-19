@@ -1,15 +1,17 @@
 /**
  * Express API 路由（以中间件形式挂进 Vite dev server，见 vite.config.ts）。
  *
- * 三个接口：
+ * 四个接口：
  * - GET /api/tree          完整合并树
  * - GET /api/doc?path=...  单篇文档原文
  * - GET /api/search?q=...  全文搜索
+ * - POST /api/upload      上传普通 Markdown 文档
  *
  * 安全要点：/api/doc 只允许读取「扫描集合内」的文件——
  * 请求路径必须与扫描结果的相对路径完全一致，天然防住路径穿越与任意文件读取。
  */
 import express from 'express'
+import multer from 'multer'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { PROJECT_ROOT } from './config'
@@ -19,13 +21,20 @@ import type { FileMeta } from './tree-builder'
 import { searchDocs } from './search'
 import type { SearchEntry } from './search'
 import type { DocResponse, SearchResponse } from '../shared/types'
+import { MAX_UPLOAD_BYTES, saveMarkdownUpload, UploadFailure } from './upload'
+import type { UploadOptions } from './upload'
 
-export function createApiApp(): express.Express {
+/** root 可在测试中指向临时项目，生产默认仍使用当前仓库根目录。 */
+export function createApiApp(root: string = PROJECT_ROOT, uploadOptions: UploadOptions = {}): express.Express {
   const app = express()
+  const parseUpload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: MAX_UPLOAD_BYTES, files: 1, fields: 2, parts: 3 },
+  }).single('file')
 
   app.get('/api/tree', (_req, res) => {
     try {
-      res.json({ tree: buildTree(scanProject(PROJECT_ROOT)) })
+      res.json({ tree: buildTree(scanProject(root)) })
     } catch {
       res.status(500).json({ error: '构建目录树失败，请检查项目目录' })
     }
@@ -40,14 +49,14 @@ export function createApiApp(): express.Express {
       }
 
       // 关键安全校验：必须是扫描集合内的确切相对路径
-      const allowed = new Set(scanProject(PROJECT_ROOT))
+      const allowed = new Set(scanProject(root))
       if (!allowed.has(path)) {
         res.status(404).json({ error: '文件不存在或不在扫描范围内' })
         return
       }
 
       const meta = buildFileIndex(buildTree([...allowed])).get(path)
-      const content = readFileSync(join(PROJECT_ROOT, ...path.split('/')), 'utf-8')
+      const content = readFileSync(join(root, ...path.split('/')), 'utf-8')
 
       const body: DocResponse = {
         path,
@@ -69,7 +78,7 @@ export function createApiApp(): express.Express {
         return
       }
 
-      const files = scanProject(PROJECT_ROOT)
+      const files = scanProject(root)
       const index = buildFileIndex(buildTree(files))
       const entries: SearchEntry[] = files.map((path) => {
         const meta = index.get(path)
@@ -77,7 +86,7 @@ export function createApiApp(): express.Express {
           path,
           title: displayTitle(path, meta),
           skillId: meta?.skillId,
-          content: readFileSync(join(PROJECT_ROOT, ...path.split('/')), 'utf-8'),
+          content: readFileSync(join(root, ...path.split('/')), 'utf-8'),
         }
       })
 
@@ -86,6 +95,46 @@ export function createApiApp(): express.Express {
     } catch {
       res.status(500).json({ error: '搜索失败' })
     }
+  })
+
+  app.post('/api/upload', (req, res) => {
+    // 浏览器的跨站表单即使不读取响应也能写入本地文件。先检查 Origin，
+    // 并把 Host 限在本机地址，避免 DNS 重绑定使用攻击者域名伪装同源。
+    // 无 Origin 的本机 CLI 调用仍可用于维护与测试。
+    const origin = req.get('origin')
+    const host = req.get('host') ?? ''
+    let localHost = false
+    try {
+      localHost = ['localhost', '127.0.0.1', '[::1]'].includes(
+        new URL(`${req.protocol}://${host}`).hostname.toLowerCase(),
+      )
+    } catch {
+      // 格式错误的 Host 不能被用作上传目标。
+    }
+    if (!localHost || (origin && origin !== `${req.protocol}://${host}`)) {
+      res.status(403).json({ error: '只允许从本地查看器页面上传文档' })
+      return
+    }
+    // multipart 解析器严格限制一份文件与两个文本字段；错误在进入磁盘逻辑前返回。
+    parseUpload(req, res, (parseError: unknown) => {
+      if (parseError) {
+        const tooLarge = parseError instanceof multer.MulterError && parseError.code === 'LIMIT_FILE_SIZE'
+        res.status(tooLarge ? 413 : 400).json({
+          error: tooLarge ? '文件不得超过 5 MiB' : '上传表单无效，只能提交一份 Markdown 文件',
+        })
+        return
+      }
+      try {
+        const path = saveMarkdownUpload(root, req.body as Record<string, unknown>, req.file, uploadOptions)
+        res.status(201).json({ path })
+      } catch (error) {
+        if (error instanceof UploadFailure) {
+          res.status(error.status).json({ error: error.message })
+        } else {
+          res.status(500).json({ error: '保存文档失败，请检查项目目录' })
+        }
+      }
+    })
   })
 
   return app
