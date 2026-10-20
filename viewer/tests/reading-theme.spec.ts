@@ -11,11 +11,12 @@ import {
 } from '../src/lib/readingTheme'
 
 describe('阅读风格偏好', () => {
-  it('无保存值、未知值和读入异常时回退到经典文档', () => {
-    expect(readReadingTheme(null)).toBe(DEFAULT_READING_THEME)
-    expect(readReadingTheme({ getItem: () => null })).toBe('classic')
-    expect(readReadingTheme({ getItem: () => 'unknown' })).toBe('classic')
-    expect(readReadingTheme({ getItem: () => { throw new Error('blocked') } })).toBe('classic')
+  it('无保存值、未知值和读入异常时默认使用精致文章', () => {
+    expect(DEFAULT_READING_THEME).toBe('editorial')
+    expect(readReadingTheme(null)).toBe('editorial')
+    expect(readReadingTheme({ getItem: () => null })).toBe('editorial')
+    expect(readReadingTheme({ getItem: () => 'unknown' })).toBe('editorial')
+    expect(readReadingTheme({ getItem: () => { throw new Error('blocked') } })).toBe('editorial')
   })
 
   it('四种内置风格均可从本地偏好恢复', () => {

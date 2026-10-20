@@ -9,9 +9,15 @@ interface WelcomePanelProps {
   onNavigate: (path: string) => void
 }
 
-/** 套件入口按设计约定依次回退，保证资料不完整的套件也可进入。 */
+/**
+ * 欢迎页卡片以“首次上手”为首选入口；树构建器目前把这篇套件级文档
+ * 作为普通文件节点收录，因此用完整相对路径识别，避免同名附属文件误命中。
+ * 旧的总览与技能文档回退链继续保留，兼容尚未写快速入手的套件。
+ */
 function entryFile(suite: SuiteNode): FileNode | undefined {
   const files = collectFiles(suite.children)
+  const quickStart = files.find((file) => file.path === `docs/skills/${suite.title}/技能快速入手.md`)
+  if (quickStart) return quickStart
   const intro = files.find((file) => file.role === 'suite-intro')
   if (intro) return intro
   const firstSkill = collectSkills(suite.children)[0]

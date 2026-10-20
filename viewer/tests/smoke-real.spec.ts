@@ -15,6 +15,16 @@ const files = scanProject(PROJECT_ROOT)
 const tree = buildTree(files)
 
 describe('真实仓库冒烟', () => {
+  it('六个套件的快速入手均被扫描并进入欢迎页可导航的文件树', () => {
+    // 欢迎页入口依赖文件节点的真实路径；只写教程但未被扫描时，套件卡片无法跳转。
+    const index = buildFileIndex(tree)
+    for (const suite of ['anthropics', 'frontend-design-premium', 'grill', 'impeccable', 'openspec', 'superpowers']) {
+      const path = `docs/skills/${suite}/技能快速入手.md`
+      expect(files).toContain(path)
+      expect(index.has(path)).toBe(true)
+    }
+  })
+
   it('六个套件齐全 + 根级文档分组', () => {
     const suites = tree.filter((n) => n.type === 'suite').map((n) => n.title)
     // 此处列出仓库实际维护的套件，新增套件时要同步检查扫描和树构建是否收录它。

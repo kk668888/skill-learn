@@ -11,7 +11,8 @@ export const READING_THEMES = [
 
 export type ReadingTheme = (typeof READING_THEMES)[number]['id']
 
-export const DEFAULT_READING_THEME: ReadingTheme = 'classic'
+/** 首次访问或存储不可用时使用精致文章；已保存的有效阅读风格仍由 readReadingTheme 优先恢复。 */
+export const DEFAULT_READING_THEME: ReadingTheme = 'editorial'
 export const READING_THEME_STORAGE_KEY = 'viewer-reading-theme'
 
 /**
