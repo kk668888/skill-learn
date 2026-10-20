@@ -10,7 +10,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import type { TreeRoot, DocResponse, SearchResultItem, UploadTarget } from '../shared/types'
-import { fetchTree, fetchDoc, fetchSearch, uploadMarkdown } from './api/client'
+import { fetchTree, fetchDoc, fetchSearch, uploadMarkdown, downloadMarkdownArchive } from './api/client'
 import { useTheme } from './hooks/useTheme'
 import { useReadingTheme } from './hooks/useReadingTheme'
 import { useHashRoute } from './hooks/useHashRoute'
@@ -199,7 +199,21 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [uploadOpen, setUploadOpen] = useState(false)
   const [uploadNotice, setUploadNotice] = useState<string | null>(null)
+  const [downloading, setDownloading] = useState(false)
+  const [downloadError, setDownloadError] = useState<string | null>(null)
   const uploadTriggerRef = useRef<HTMLButtonElement>(null)
+  const handleDownload = useCallback(async () => {
+    if (downloading) return
+    setDownloading(true)
+    setDownloadError(null)
+    try {
+      await downloadMarkdownArchive()
+    } catch (error) {
+      setDownloadError(error instanceof Error ? error.message : '下载失败，请重试')
+    } finally {
+      setDownloading(false)
+    }
+  }, [downloading])
   const handleSelect = useCallback(
     (path: string) => {
       navigate(path)
@@ -272,6 +286,9 @@ export default function App() {
             onToggleTheme={toggleTheme}
             onOpenUpload={() => setUploadOpen(true)}
             uploadTriggerRef={uploadTriggerRef}
+            onDownload={handleDownload}
+            downloading={downloading}
+            downloadError={downloadError}
           />
         )}
       </aside>

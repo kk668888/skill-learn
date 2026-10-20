@@ -194,13 +194,23 @@ button {
   padding: 8px 12px;
   border-top: 1px solid var(--border);
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 8px;
 }
 
-/* 上传是普通文档的主入口，沿用侧栏的蓝色语义强调，而不改变阅读区样式。 */
-.upload-open-btn {
-  padding: 4px 10px;
+.download-error { margin: 0; }
+
+/* 「操作」下拉菜单：触发按钮沿用侧栏的蓝色语义强调，向上弹出避开侧栏底部。 */
+.sidebar-menu {
+  position: relative;
+}
+
+.sidebar-menu-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 5px 10px;
   border: 1px solid var(--accent);
   border-radius: 6px;
   color: var(--accent);
@@ -208,7 +218,41 @@ button {
   font-weight: 600;
 }
 
-.upload-open-btn:hover { background: var(--accent-weak); }
+.sidebar-menu-trigger:hover { background: var(--accent-weak); }
+
+.sidebar-menu-caret {
+  font-size: 11px;
+  transition: transform 0.15s ease;
+}
+
+.sidebar-menu.open .sidebar-menu-caret { transform: rotate(180deg); }
+
+.sidebar-menu-list {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 6px);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.sidebar-menu-item {
+  padding: 6px 10px;
+  border-radius: 6px;
+  text-align: left;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.sidebar-menu-item:hover { background: var(--bg-hover); }
+.sidebar-menu-item:disabled { opacity: 0.6; cursor: wait; }
 
 .sidebar-error {
   margin: 8px 12px;

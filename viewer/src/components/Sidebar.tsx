@@ -10,6 +10,7 @@ import type { RefObject } from 'react'
 import type { TreeRoot, SearchResultItem } from '../../shared/types'
 import { TreeView } from './TreeView'
 import { SearchResults } from './SearchResults'
+import { SidebarMenu } from './SidebarMenu'
 import { filterFiles } from '../lib/filter'
 import { cx } from '../lib/cx'
 
@@ -30,6 +31,9 @@ interface SidebarProps {
   onToggleTheme: () => void
   onOpenUpload: () => void
   uploadTriggerRef: RefObject<HTMLButtonElement>
+  onDownload: () => void
+  downloading: boolean
+  downloadError: string | null
 }
 
 export function Sidebar({
@@ -48,6 +52,9 @@ export function Sidebar({
   onToggleTheme,
   onOpenUpload,
   uploadTriggerRef,
+  onDownload,
+  downloading,
+  downloadError,
 }: SidebarProps) {
   // 过滤文本只影响侧边栏展示，留在组件内部即可
   const [filterText, setFilterText] = useState('')
@@ -119,12 +126,15 @@ export function Sidebar({
       </div>
 
       <div className="sidebar-foot">
-        <button ref={uploadTriggerRef} type="button" className="upload-open-btn" onClick={onOpenUpload}>
-          上传 Markdown
-        </button>
-        <button type="button" className="ghost-btn" onClick={onToggleTheme}>
-          {isDark ? '切换到浅色' : '切换到深色'}
-        </button>
+        <SidebarMenu
+          uploadTriggerRef={uploadTriggerRef}
+          onOpenUpload={onOpenUpload}
+          onDownload={onDownload}
+          downloading={downloading}
+          isDark={isDark}
+          onToggleTheme={onToggleTheme}
+        />
+        {downloadError && <div className="sidebar-error download-error" role="alert">{downloadError}</div>}
       </div>
     </div>
   )

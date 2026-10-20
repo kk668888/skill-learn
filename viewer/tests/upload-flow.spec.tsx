@@ -84,7 +84,8 @@ afterEach(async () => {
 it('新建普通分组后无需刷新页面即可看到目录、阅读正文并搜索', async () => {
   const user = userEvent.setup()
   render(<App />)
-  await user.click(await screen.findByRole('button', { name: '上传 Markdown' }))
+  await user.click(await screen.findByRole('button', { name: '操作' }))
+  await user.click(screen.getByRole('button', { name: '上传 Markdown' }))
   const file = new File(['# 导入标题\n独有关键词\n'], '导入.md', { type: 'text/markdown' })
   await user.upload(screen.getByLabelText('选择 Markdown 文件'), file)
   await user.selectOptions(screen.getByLabelText('保存到分组'), '__new__')
@@ -107,13 +108,15 @@ it('新建普通分组后无需刷新页面即可看到目录、阅读正文并�
   expect(await screen.findByText('导入', { selector: '.search-item-title' })).toBeTruthy()
 })
 
-it('窄屏取消上传后将焦点还给仍打开的侧栏上传按钮', async () => {
+it('窄屏取消上传后将焦点还给侧栏的「操作」菜单按钮', async () => {
   window.matchMedia = vi.fn(() => ({ matches: true })) as unknown as typeof window.matchMedia
   const user = userEvent.setup()
   render(<App />)
   await user.click(await screen.findByRole('button', { name: '打开目录' }))
-  const trigger = screen.getByRole('button', { name: '上传 Markdown' })
+  // 焦点归还目标现在是「操作」菜单触发按钮（上传入口的挂载点）
+  const trigger = screen.getByRole('button', { name: '操作' })
   await user.click(trigger)
+  await user.click(screen.getByRole('button', { name: '上传 Markdown' }))
   await user.click(screen.getByRole('button', { name: '取消' }))
   await waitFor(() => expect(document.activeElement).toBe(trigger))
 })
