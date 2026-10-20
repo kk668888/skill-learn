@@ -27,7 +27,11 @@ import type { UploadOptions } from './upload'
 import { sendMarkdownArchive } from './download'
 
 /** root 可在测试中指向临时项目，生产默认仍使用当前仓库根目录。 */
-export function createApiApp(root: string = PROJECT_ROOT, uploadOptions: UploadOptions = {}): express.Express {
+export function createApiApp(
+  root: string = PROJECT_ROOT,
+  uploadOptions: UploadOptions = {},
+  publicOrigin?: string,
+): express.Express {
   const app = express()
   const parseUpload = multer({
     storage: multer.memoryStorage(),
@@ -110,15 +114,20 @@ export function createApiApp(root: string = PROJECT_ROOT, uploadOptions: UploadO
     // 无 Origin 的本机 CLI 调用仍可用于维护与测试。
     const origin = req.get('origin')
     const host = req.get('host') ?? ''
-    let localHost = false
+    let requestOrigin: string | null = null
     try {
-      localHost = ['localhost', '127.0.0.1', '[::1]'].includes(
-        new URL(`${req.protocol}://${host}`).hostname.toLowerCase(),
-      )
+      requestOrigin = new URL(`${req.protocol}://${host}`).origin
     } catch {
       // 格式错误的 Host 不能被用作上传目标。
     }
-    if (!localHost || (origin && origin !== `${req.protocol}://${host}`)) {
+    // 生产模式使用显式配置的地址；开发模式继续允许 localhost 和无 Origin
+    // 的本机 CLI 调用。生产模式要求 Origin，阻断无来源的浏览器表单提交。
+    const allowed = publicOrigin
+      ? requestOrigin === publicOrigin && origin === publicOrigin
+      : requestOrigin !== null
+        && ['localhost', '127.0.0.1', '[::1]'].includes(new URL(requestOrigin).hostname.toLowerCase())
+        && (!origin || origin === requestOrigin)
+    if (!allowed) {
       res.status(403).json({ error: '只允许从本地查看器页面上传文档' })
       return
     }

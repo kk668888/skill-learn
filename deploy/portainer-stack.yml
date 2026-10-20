@@ -1,0 +1,36 @@
+# Portainer Stack 示例：可在 Portainer「Web editor」中直接粘贴。
+#
+# 部署前需在 Portainer 的 Stack「Environment variables」中填写三个变量
+# （不带默认值的变量缺失时，Stack 会拒绝启动并提示原因）：
+#
+#   VIEWER_IMAGE           镜像名:标签，须已存在于 Portainer 管理的 Docker Engine 上，
+#                          例如 skill-learn-viewer:latest
+#   VIEWER_HOST_DIR        项目在宿主机上的绝对路径（Linux 写 /home/xx/skill-learn，
+#                          Windows Docker Desktop 写 C:/projects/skill-learn 这类正斜杠路径）
+#   VIEWER_PUBLIC_ORIGIN   浏览器实际使用的完整局域网地址，例如 http://192.168.1.20:5188
+#                          （协议、IP/主机名、端口必须与访问时输入的一致）
+
+services:
+  viewer:
+    image: ${VIEWER_IMAGE:?请在 Portainer 环境变量中填写镜像名（含标签）}
+    container_name: skill-learn-viewer
+    restart: unless-stopped
+    ports:
+      # 左侧是宿主机端口，可改成其他空闲端口；改动后 VIEWER_PUBLIC_ORIGIN 的端口必须同步。
+      # 右侧 5188 是容器内服务端口，与服务默认值一致，请勿修改。
+      - "${VIEWER_PORT:-5188}:5188"
+    environment:
+      # 服务启动时校验该值；缺失、非 HTTP 或带路径/参数会导致容器立即退出并输出原因。
+      VIEWER_PUBLIC_ORIGIN: ${VIEWER_PUBLIC_ORIGIN:?请在 Portainer 环境变量中填写局域网访问地址}
+    volumes:
+      # 两个普通文档目录绑定到宿主机：上传落盘在宿主机，容器重建不丢失，Git 由宿主机管理。
+      # 冒号右侧是容器内路径，与服务扫描的项目根相对路径一致，请勿修改。
+      - ${VIEWER_HOST_DIR:?请在 Portainer 环境变量中填写宿主机项目绝对路径}/docs/ai-docs:/app/docs/ai-docs
+      - ${VIEWER_HOST_DIR:?请在 Portainer 环境变量中填写宿主机项目绝对路径}/docs/collections:/app/docs/collections
+    healthcheck:
+      # 与镜像内置检查一致：能返回目录树即视为健康，便于 Portainer 状态页展示。
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5188/api/tree').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3

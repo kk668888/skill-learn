@@ -5,6 +5,7 @@
 # 查看器依赖、构建产物和测试缓存。
 /viewer/node_modules/
 /viewer/dist/
+/viewer/dist-server/
 /viewer/coverage/
 /viewer/.vite/
 *.tsbuildinfo
