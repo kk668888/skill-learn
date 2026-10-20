@@ -1,10 +1,11 @@
 /**
  * Express API 路由（以中间件形式挂进 Vite dev server，见 vite.config.ts）。
  *
- * 四个接口：
+ * 五个接口：
  * - GET /api/tree          完整合并树
  * - GET /api/doc?path=...  单篇文档原文
  * - GET /api/search?q=...  全文搜索
+ * - GET /api/download      打包下载所有可浏览 Markdown
  * - POST /api/upload      上传普通 Markdown 文档
  *
  * 安全要点：/api/doc 只允许读取「扫描集合内」的文件——
@@ -23,6 +24,7 @@ import type { SearchEntry } from './search'
 import type { DocResponse, SearchResponse } from '../shared/types'
 import { MAX_UPLOAD_BYTES, saveMarkdownUpload, UploadFailure } from './upload'
 import type { UploadOptions } from './upload'
+import { sendMarkdownArchive } from './download'
 
 /** root 可在测试中指向临时项目，生产默认仍使用当前仓库根目录。 */
 export function createApiApp(root: string = PROJECT_ROOT, uploadOptions: UploadOptions = {}): express.Express {
@@ -95,6 +97,11 @@ export function createApiApp(root: string = PROJECT_ROOT, uploadOptions: UploadO
     } catch {
       res.status(500).json({ error: '搜索失败' })
     }
+  })
+
+  // 下载与目录使用同一份扫描边界，且每次请求都重新扫描以纳入新上传的文档。
+  app.get('/api/download', (_req, res) => {
+    sendMarkdownArchive(root, res)
   })
 
   app.post('/api/upload', (req, res) => {
