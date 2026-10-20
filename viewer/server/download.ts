@@ -1,6 +1,6 @@
 /**
- * 将查看器扫描到的 Markdown 流式写入 ZIP 响应。
- * 文件名完全来自 scanProject；每个源流按需打开，并在客户端取消时主动关闭。
+ * 将全部可浏览 Markdown 和可安装技能源码流式写入同一个 ZIP 响应。
+ * 条目来自两份受限清单；每个源流按需打开，并在客户端取消时主动关闭。
  */
 import {
   closeSync, constants, createReadStream, fstatSync, lstatSync, openSync, realpathSync, statSync,
@@ -11,6 +11,7 @@ import type { PassThrough } from 'node:stream'
 import type { Response } from 'express'
 import yazl from 'yazl'
 import { scanProject } from './scanner'
+import { scanInstallableFiles } from './archive-inventory'
 
 interface Entry {
   absolute: string
@@ -51,7 +52,9 @@ export function sendMarkdownArchive(
 ): void {
   try {
     const rootReal = realpathSync(root)
-    const entries: Entry[] = scanPaths(root).map((relativePath) => {
+    // 技能目录中的 Markdown 同时被阅读扫描器和安装清单命中，Set 保证只打包一次。
+    const paths = [...new Set([...scanPaths(root), ...scanInstallableFiles(root)])].sort()
+    const entries: Entry[] = paths.map((relativePath) => {
       const absolute = join(root, ...relativePath.split('/'))
       // 先完成所有预检，使常见缺失/不可读错误能在 ZIP 响应开始前返回 JSON。
       const { handle, stats } = openVerifiedFile(rootReal, absolute)
@@ -105,12 +108,12 @@ export function sendMarkdownArchive(
 
     // 固定文件名避免响应头注入；no-store 避免共享设备缓存整份资料。
     res.setHeader('Content-Type', 'application/zip')
-    res.setHeader('Content-Disposition', 'attachment; filename="skill-learn-markdown.zip"')
+    res.setHeader('Content-Disposition', 'attachment; filename="skill-learn-bundle.zip"')
     res.setHeader('Cache-Control', 'no-store')
     output.pipe(res)
     zip.end()
   } catch {
     if (res.headersSent || res.destroyed) res.destroy()
-    else res.status(500).json({ error: '打包 Markdown 失败，请检查项目文件后重试' })
+    else res.status(500).json({ error: '打包完整资料失败，请检查项目文件后重试' })
   }
 }

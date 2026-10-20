@@ -5,7 +5,7 @@
  * - GET /api/tree          完整合并树
  * - GET /api/doc?path=...  单篇文档原文
  * - GET /api/search?q=...  全文搜索
- * - GET /api/download      打包下载所有可浏览 Markdown
+ * - GET /api/download      打包下载可浏览 Markdown、完整技能源码与安装脚本
  * - POST /api/upload      上传普通 Markdown 文档
  *
  * 安全要点：/api/doc 只允许读取「扫描集合内」的文件——
@@ -103,7 +103,7 @@ export function createApiApp(
     }
   })
 
-  // 下载与目录使用同一份扫描边界，且每次请求都重新扫描以纳入新上传的文档。
+  // 下载保留目录扫描到的文档，并补入安装所需文件；每次请求重扫以纳入新上传的文档。
   app.get('/api/download', (_req, res) => {
     sendMarkdownArchive(root, res)
   })

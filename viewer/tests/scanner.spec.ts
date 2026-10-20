@@ -48,6 +48,7 @@ beforeAll(() => {
   put('docs', 'collections', '读书笔记', '第一章.md')
   put('README.md')
   put('CLAUDE.md')
+  put('.secret.md') // 根级隐藏文件同样不能进入目录或下载包。
   mk('viewer')
   put('viewer', 'no.txt') // viewer 目录本身就不该被扫到
   mk('node_modules')

@@ -22,7 +22,7 @@ it('完整响应后保存 ZIP，移除临时链接并释放对象 URL', async ()
   URL.createObjectURL = create
   URL.revokeObjectURL = revoke
   const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
-    expect(this.download).toBe('skill-learn-markdown.zip')
+    expect(this.download).toBe('skill-learn-bundle.zip')
     expect(this.href).toBe('blob:viewer-test')
   })
 
@@ -30,7 +30,7 @@ it('完整响应后保存 ZIP，移除临时链接并释放对象 URL', async ()
   expect(request).toHaveBeenCalledWith('/api/download')
   expect(create).toHaveBeenCalledOnce()
   expect(click).toHaveBeenCalledOnce()
-  expect(document.querySelector('a[download="skill-learn-markdown.zip"]')).toBeNull()
+  expect(document.querySelector('a[download="skill-learn-bundle.zip"]')).toBeNull()
   vi.advanceTimersByTime(1000)
   expect(revoke).toHaveBeenCalledWith('blob:viewer-test')
 })

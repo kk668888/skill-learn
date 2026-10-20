@@ -77,7 +77,7 @@ export async function downloadMarkdownArchive(): Promise<void> {
   const url = URL.createObjectURL(archive)
   const link = document.createElement('a')
   link.href = url
-  link.download = 'skill-learn-markdown.zip'
+  link.download = 'skill-learn-bundle.zip'
   document.body.appendChild(link)
   try {
     link.click()

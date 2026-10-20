@@ -1,4 +1,4 @@
-/** 使用真实 HTTP 响应和 ZIP 解包验证：下载范围必须与查看器扫描范围完全一致。 */
+/** 使用真实 HTTP 响应和 ZIP 解包验证：完整资料含可浏览文档及技能安装文件。 */
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { ReadStream, mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { randomBytes } from 'node:crypto'
@@ -23,11 +23,18 @@ function put(relative: string, bytes: Buffer | string): void {
 beforeEach(async () => {
   root = mkdtempSync(join(tmpdir(), 'viewer-download-'))
   put('skills/demo/SKILL.md', '# 源码\n')
+  put('skills/demo/scripts/run.js', Buffer.from('console.log("运行技能")\n'))
+  put('skills/demo/commands/example.md', '# 示例命令\n')
+  put('skills/demo/.hidden.js', '不能进入下载包')
+  put('skills/demo/node_modules/dependency.js', '不能进入下载包')
+  put('install-skills.mjs', '#!/usr/bin/env node\n')
   put('docs/skills/demo/中文版.md', '# 中文版\n')
   put('docs/ai-docs/笔记.md', Buffer.from([0xef, 0xbb, 0xbf, 0x23, 0x20, 0x41, 0x0d, 0x0a]))
   put('docs/collections/读书/第一章.md', '# 第一章\n')
   put('README.md', '# 根文档\n')
+  put('.secret.md', '# 根级隐藏文档不应进入下载包\n')
   put('viewer/ignored.md', '# 不在查看器目录\n')
+  put('viewer/ignored.js', '不能进入下载包')
   put('docs/ai-docs/.hidden.md', '# 隐藏\n')
   put('docs/ai-docs/附件.txt', '不是 Markdown')
   server = createApiApp(root).listen(0)
@@ -44,22 +51,60 @@ afterEach(async () => {
   vi.restoreAllMocks()
 })
 
-it('将全部可浏览 Markdown 按原相对路径和原始字节打包，不收录扫描范围外文件', async () => {
+it('将全部可浏览 Markdown 与可安装的技能源码按原路径和原始字节打包', async () => {
   const response = await fetch(`${base}/api/download`)
   expect(response.status).toBe(200)
   expect(response.headers.get('content-type')).toContain('application/zip')
-  expect(response.headers.get('content-disposition')).toContain('.zip')
+  expect(response.headers.get('content-disposition')).toContain('skill-learn-bundle.zip')
   const entries = unzipSync(new Uint8Array(await response.arrayBuffer()))
   expect(Object.keys(entries).sort()).toEqual([
     'README.md',
     'docs/ai-docs/笔记.md',
     'docs/collections/读书/第一章.md',
     'docs/skills/demo/中文版.md',
+    'install-skills.mjs',
+    'skills/demo/commands/example.md',
     'skills/demo/SKILL.md',
+    'skills/demo/scripts/run.js',
   ].sort())
+  // 下载只归档脚本，绝不在服务端运行；用原字节断言避免编码转换损坏安装文件。
+  expect(Buffer.from(entries['skills/demo/scripts/run.js'])).toEqual(
+    readFileSync(join(root, 'skills', 'demo', 'scripts', 'run.js')),
+  )
   expect(Buffer.from(entries['docs/ai-docs/笔记.md'])).toEqual(
     Buffer.from([0xef, 0xbb, 0xbf, 0x23, 0x20, 0x41, 0x0d, 0x0a]),
   )
+})
+
+it('存在技能源码但安装脚本缺失时拒绝提供不可安装的 ZIP', async () => {
+  rmSync(join(root, 'install-skills.mjs'))
+  const response = await fetch(`${base}/api/download`)
+  expect(response.status).toBe(500)
+  expect(response.headers.get('content-type')).toContain('application/json')
+  expect((await response.json()).error).toContain('打包')
+})
+
+it('存在安装脚本但技能源码缺失时也拒绝提供空安装包', async () => {
+  rmSync(join(root, 'skills'), { recursive: true, force: true })
+  const response = await fetch(`${base}/api/download`)
+  expect(response.status).toBe(500)
+  expect((await response.json()).error).toContain('打包完整资料失败')
+})
+
+it('技能附属文件若为符号链接，不读取项目外的内容', async () => {
+  const outside = mkdtempSync(join(tmpdir(), 'viewer-skill-secret-'))
+  const secret = join(outside, 'secret.js')
+  writeFileSync(secret, '项目外的私密内容')
+  try {
+    symlinkSync(secret, join(root, 'skills', 'demo', 'scripts', 'leak.js'))
+    const response = await fetch(`${base}/api/download`)
+    expect(response.status).toBe(200)
+    const entries = unzipSync(new Uint8Array(await response.arrayBuffer()))
+    expect(entries['skills/demo/scripts/leak.js']).toBeUndefined()
+    expect(Object.values(entries).some((bytes) => Buffer.from(bytes).toString().includes('项目外的私密内容'))).toBe(false)
+  } finally {
+    rmSync(outside, { recursive: true, force: true })
+  }
 })
 
 it('空项目也返回有效的空 ZIP', async () => {
@@ -98,7 +143,7 @@ it('扫描后文件不可读取时返回明确错误，不提供残缺 ZIP', asy
     const response = await fetch(`http://127.0.0.1:${address.port}/api/download`)
     expect(response.status).toBe(500)
     expect(response.headers.get('content-type')).toContain('application/json')
-    expect((await response.json()).error).toContain('打包 Markdown 失败')
+    expect((await response.json()).error).toContain('打包完整资料失败')
   } finally {
     await new Promise<void>((resolve) => failureServer.close(() => resolve()))
   }

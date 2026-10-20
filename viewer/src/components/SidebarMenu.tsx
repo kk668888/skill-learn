@@ -95,15 +95,15 @@ export function SidebarMenu({
           <button type="button" className="sidebar-menu-item" onClick={() => runAndClose(onOpenUpload)}>
             上传 Markdown
           </button>
-          {/* 下载始终请求服务端的完整扫描清单，不读取当前过滤或搜索结果。 */}
+          {/* 下载由服务端打包完整资料与安装文件，不受当前过滤或搜索结果影响。 */}
           <button
             type="button"
             className="sidebar-menu-item"
-            aria-label="下载全部 Markdown"
+            aria-label="下载完整资料与技能包"
             disabled={downloading}
             onClick={() => runAndClose(onDownload)}
           >
-            {downloading ? '正在打包…' : '下载全部 Markdown'}
+            {downloading ? '正在打包…' : '下载完整资料与技能包'}
           </button>
           <button type="button" className="sidebar-menu-item" onClick={() => runAndClose(onToggleTheme)}>
             {isDark ? '切换到浅色主题' : '切换到深色主题'}

@@ -17,6 +17,8 @@ COPY --from=build /app/viewer/dist-server ./dist-server
 
 WORKDIR /app
 COPY skills/ ./skills/
+# 完整下载包从 /app 打包；安装脚本必须与 skills/ 同级，解压后才能直接发现套件。
+COPY install-skills.mjs ./install-skills.mjs
 COPY docs/skills/ ./docs/skills/
 COPY docs/ai-docs/ ./docs/ai-docs/
 COPY *.md ./
