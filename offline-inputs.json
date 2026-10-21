@@ -4,12 +4,12 @@
     {
       "agent": "claude",
       "platform": "win32-x64",
-      "bundles": ["superpowers-claude", "grill-claude", "frontend-design-premium-claude", "openspec", "impeccable", "skill-creator"]
+      "bundles": ["superpowers-claude", "grill-claude", "frontend-design-premium-claude", "ponytail-claude", "openspec", "impeccable", "skill-creator"]
     },
     {
       "agent": "codex",
       "platform": "win32-x64",
-      "bundles": ["superpowers-codex", "grill-codex", "frontend-design-premium-codex", "openspec", "impeccable", "skill-creator"]
+      "bundles": ["superpowers-codex", "grill-codex", "frontend-design-premium-codex", "ponytail-codex", "openspec", "impeccable", "skill-creator"]
     }
   ],
   "bundles": [
@@ -26,6 +26,10 @@
       "input": "claude/frontend-design-premium", "inputSha256": "49dabfb3f13aaf83be6d21ac693c264f38a6c306fbd1d7c3330df79619523899", "output": "payload/claude/plugins/frontend-design-premium", "required": [".claude-plugin/plugin.json", "LICENSE", "skills/frontend-design/SKILL.md", "skills/frontend-design-premium/SKILL.md"]
     },
     {
+      "name": "ponytail-claude", "suite": "ponytail", "agent": "claude", "method": "plugin", "pluginName": "ponytail", "version": "5.3.2", "source": "https://github.com/DietrichGebert/ponytail/releases/tag/v5.3.2", "license": "MIT",
+      "input": "claude/ponytail", "inputSha256": "84d5a34af6049075d0ef8ab008543b4005baf1436c4f15f60095f853a2cdd63d", "output": "payload/claude/plugins/ponytail", "required": [".claude-plugin/plugin.json", "LICENSE", "skills/ponytail/SKILL.md", "hooks/claude-band.json", "hooks/claude-codex-hooks.json"]
+    },
+    {
       "name": "superpowers-codex", "suite": "superpowers", "agent": "codex", "method": "plugin", "pluginName": "superpowers", "version": "6.3.0", "source": "https://github.com/obra/superpowers", "license": "MIT",
       "input": "codex/superpowers", "inputSha256": "d5fd47916c04ba287ed89e0e1ff843331635348aa1b0d17dd783fc91bd169d89", "output": "payload/codex/plugins/superpowers", "required": [".codex-plugin/plugin.json", "LICENSE", "skills/using-superpowers/SKILL.md"]
     },
@@ -36,6 +40,10 @@
     {
       "name": "frontend-design-premium-codex", "suite": "frontend-design-premium", "agent": "codex", "method": "plugin", "pluginName": "frontend-design-premium", "version": "1.4.1", "source": "https://github.com/TryHand-Co-Ltd/frontend-design-premium/releases/tag/v1.4.1", "license": "Apache-2.0",
       "input": "codex/frontend-design-premium", "inputSha256": "cb190dd20f7ce5c71d55eeb525e72a3684e23b3f16e4ab6bc425c747df0fcdc7", "output": "payload/codex/plugins/frontend-design-premium", "required": [".codex-plugin/plugin.json", "LICENSE", "skills/frontend-design/SKILL.md", "skills/frontend-design-premium/SKILL.md"]
+    },
+    {
+      "name": "ponytail-codex", "suite": "ponytail", "agent": "codex", "method": "plugin", "pluginName": "ponytail", "version": "5.3.2", "source": "https://github.com/DietrichGebert/ponytail/releases/tag/v5.3.2", "license": "MIT",
+      "input": "codex/ponytail", "inputSha256": "84d5a34af6049075d0ef8ab008543b4005baf1436c4f15f60095f853a2cdd63d", "output": "payload/codex/plugins/ponytail", "required": [".codex-plugin/plugin.json", "LICENSE", "skills/ponytail/SKILL.md", "hooks/claude-codex-hooks.json"]
     },
     {
       "name": "openspec", "suite": "openspec", "method": "cli", "version": "1.8.0", "source": "https://www.npmjs.com/package/@fission-ai/openspec/v/1.8.0", "license": "MIT",

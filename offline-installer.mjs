@@ -11,7 +11,7 @@ import { verifyOfflineKit } from './offline-kit.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const MARKET = 'skill-learn-offline';
-const SUITES = ['superpowers', 'grill', 'frontend-design-premium', 'openspec', 'impeccable', 'skill-creator'];
+const SUITES = ['superpowers', 'grill', 'frontend-design-premium', 'ponytail', 'openspec', 'impeccable', 'skill-creator'];
 
 function usage() {
   return [
@@ -19,7 +19,7 @@ function usage() {
     '  --list                 查看离线包套件、版本及支持平台',
     '  --tool <名称>          目标工具：claude 或 codex',
     '  --project <路径>       目标项目，默认当前目录',
-    '  --bundle <名称>        只处理指定套件，可重复使用；默认处理全部六套',
+    '  --bundle <名称>        只处理指定套件，可重复使用；默认处理全部七套',
     '  --scope project|user   Claude 插件与独立技能范围，默认 project；Codex 插件由宿主管理在用户级',
     '  --dry-run             仅显示计划，不写入任何目标文件',
     '  --status              查看目标现状及冲突，不执行安装',

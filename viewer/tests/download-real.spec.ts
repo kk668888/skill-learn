@@ -21,7 +21,7 @@ afterAll(async () => {
   rmSync(extractionRoot, { recursive: true, force: true })
 }, 60_000)
 
-it('真实下载包解压后可列出六套并预览，且包含平台引擎与完整依赖', async () => {
+it('真实下载包解压后可列出七套并预览，且包含平台引擎与完整依赖', async () => {
   server = createApiApp(PROJECT_ROOT).listen(0)
   await new Promise<void>((resolve) => server!.once('listening', resolve))
   const address = server.address()
@@ -42,14 +42,17 @@ it('真实下载包解压后可列出六套并预览，且包含平台引擎与�
   expect(entries['offline-kit/.claude-plugin/marketplace.json']).toBeDefined()
   expect(entries['offline-kit/.agents/plugins/marketplace.json']).toBeDefined()
   expect(entries['offline-kit/payload/shared/openspec/node_modules/yaml/package.json']).toBeDefined()
+  expect(entries['offline-kit/payload/claude/plugins/ponytail/.claude-plugin/plugin.json']).toBeDefined()
+  expect(entries['offline-kit/payload/claude/plugins/ponytail/skills/ponytail/SKILL.md']).toBeDefined()
+  expect(entries['offline-kit/payload/codex/plugins/ponytail/.codex-plugin/plugin.json']).toBeDefined()
   expect(entries['offline-kit/payload/shared/impeccable/dist/universal/.agents/skills/impeccable/scripts/bin/windows-x64/impeccable.exe']).toBeDefined()
 
   const output = execFileSync(process.execPath, [join(extractionRoot, 'install-skills.mjs'), '--list'], {
     cwd: extractionRoot,
     encoding: 'utf8',
   })
-  expect(output).toContain('发现 6 套')
-  for (const suite of ['skill-creator', 'frontend-design-premium', 'grill', 'impeccable', 'openspec', 'superpowers']) {
+  expect(output).toContain('发现 7 套')
+  for (const suite of ['skill-creator', 'frontend-design-premium', 'grill', 'impeccable', 'openspec', 'ponytail', 'superpowers']) {
     expect(output).toContain(`[${suite}]`)
   }
   const preview = execFileSync(process.execPath, [

@@ -294,11 +294,41 @@ test('--help 与 --list 不要求目标工具并显示离线包内容', async ()
     const help = execFileSync(process.execPath, [SCRIPT, '--help'], { encoding: 'utf8' });
     assert.match(help, /--tool claude\|codex/);
     assert.match(help, /--dry-run/);
+    assert.match(help, /七套/);
     const list = execFileSync(process.execPath, [SCRIPT, '--list', '--kit', state.kit], { encoding: 'utf8' });
     assert.match(list, /\[skill-creator\] test/);
     assert.match(list, new RegExp(`支持：codex / ${process.platform}-${process.arch}`));
   } finally {
     await rm(state.root, { recursive: true, force: true });
+  }
+});
+
+test('ponytail 套件按插件方式解析并可被单独选择', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'skill-learn-ponytail-'));
+  const input = path.join(root, 'inputs');
+  const kit = path.join(root, 'kit');
+  const project = path.join(root, 'project');
+  try {
+    await mkdir(path.join(input, 'plugin', '.claude-plugin'), { recursive: true });
+    await mkdir(path.join(input, 'plugin', 'skills', 'ponytail'), { recursive: true });
+    await mkdir(project);
+    await writeFile(path.join(input, 'plugin', '.claude-plugin', 'plugin.json'), JSON.stringify({ name: 'ponytail', version: '5.3.2' }));
+    await writeFile(path.join(input, 'plugin', 'skills', 'ponytail', 'SKILL.md'), '# Ponytail\n');
+    await buildOfflineKit({ inputRoot: input, outputRoot: kit, plan: {
+      format: 1,
+      targets: [{ agent: 'claude', platform: `${process.platform}-${process.arch}`, bundles: ['ponytail-claude'] }],
+      bundles: [{ name: 'ponytail-claude', suite: 'ponytail', agent: 'claude', method: 'plugin', pluginName: 'ponytail',
+        version: '5.3.2', source: 'fixture', license: 'MIT', input: 'plugin', output: 'payload/claude/plugins/ponytail' }],
+    } });
+    const host = path.join(root, 'host.js');
+    await writeFile(host, `if (process.argv.includes('list')) process.stdout.write('[]');\n`);
+    const preview = spawnSync(process.execPath, [SCRIPT, '--tool', 'claude', '--project', project,
+      '--kit', kit, '--bundle', 'ponytail', '--host-bin', host, '--dry-run'], { encoding: 'utf8' });
+    assert.equal(preview.status, 0, preview.stderr);
+    assert.match(preview.stdout, /ponytail：ready/);
+    assert.match(preview.stdout, /从包内市场安装插件/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
   }
 });
 

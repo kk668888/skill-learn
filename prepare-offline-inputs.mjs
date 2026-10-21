@@ -18,6 +18,7 @@ const BUNDLE_SHA256 = '358c8b6bbc2113e9910bf4adbdba4523612453ec58d56a5c1b1465441
 
 const sourceFlags = [
   '--claude-superpowers', '--claude-grill', '--claude-premium', '--codex-superpowers',
+  '--ponytail-plugin',
   '--openspec-package', '--impeccable-engine', '--impeccable-bundle-archive',
 ];
 
@@ -75,11 +76,15 @@ async function main() {
   const claudeGrill = options.get('--claude-grill');
   const claudePremium = options.get('--claude-premium');
   const codexSuper = options.get('--codex-superpowers');
+  // ponytail 单仓库同时携带两种宿主 manifest，一次校验覆盖 claude 与 codex 两个输入树。
+  const ponytail = options.get('--ponytail-plugin');
   const openspec = options.get('--openspec-package');
   await validatePackage(claudeSuper, '.claude-plugin/plugin.json', 'superpowers', '7.0.0');
   const grill = await validatePackage(claudeGrill, '.claude-plugin/plugin.json', 'mattpocock-skills', '1.3.1');
   const premium = await validatePackage(claudePremium, '.claude-plugin/plugin.json', 'frontend-design-premium', '1.4.1');
   await validatePackage(codexSuper, '.codex-plugin/plugin.json', 'superpowers', '6.3.0');
+  await validatePackage(ponytail, '.claude-plugin/plugin.json', 'ponytail', '5.3.2');
+  await validatePackage(ponytail, '.codex-plugin/plugin.json', 'ponytail', '5.3.2');
   await validatePackage(openspec, 'package.json', '@fission-ai/openspec', '1.8.0');
   const engine = await readFile(options.get('--impeccable-engine'));
   if (createHash('sha256').update(engine).digest('hex') !== ENGINE_SHA256) {
@@ -99,6 +104,7 @@ async function main() {
     [claudeSuper, 'claude/superpowers'], [claudeGrill, 'claude/grill'],
     [claudePremium, 'claude/frontend-design-premium'], [codexSuper, 'codex/superpowers'],
     [claudeGrill, 'codex/grill'], [claudePremium, 'codex/frontend-design-premium'],
+    [ponytail, 'claude/ponytail'], [ponytail, 'codex/ponytail'],
     [openspec, 'shared/openspec'],
     [path.join(HERE, 'skills/anthropics/skill-creator'), 'shared/skill-creator'],
   ];
