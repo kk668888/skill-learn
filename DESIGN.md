@@ -3,7 +3,7 @@ version: alpha
 name: "skill-learn viewer"
 description: "供中文技能文档阅读与对照的三栏查看器，应用外壳克制，正文提供四种阅读排版。"
 colors:
-  app-background: "#f6f8fa"
+  app-background: "#fbfbfe"
   panel: "#ffffff"
   text: "#1f2328"
   muted: "#57606a"
@@ -25,8 +25,8 @@ rounded:
   code: "8px"
   pill: "999px"
 spacing:
-  sidebar-default: "300px"
-  toc-default: "230px"
+  sidebar-default: "252px"
+  toc-default: "205px"
   pane-divider: "6px"
   reading-max: "860px"
 components:
