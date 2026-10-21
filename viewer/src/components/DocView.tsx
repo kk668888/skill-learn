@@ -37,7 +37,7 @@ export function DocView({ doc, tree, onNavigate, readingTheme, onReadingThemeCha
       <ReadingProgress docPath={doc.path} readingTheme={readingTheme} />
       <DocHeader doc={doc} context={context} crossLinks={crossLinks} onNavigate={onNavigate}
         readingTheme={readingTheme} onReadingThemeChange={onReadingThemeChange} />
-      {/* 正文列与通栏文档头分离：头部横跨整个中栏，正文保持阅读度量。 */}
+      {/* 正文列与通栏文档头分离：头部横跨整个中栏，正文铺满中栏、仅留内边距。 */}
       <div className="doc-body">
         <MarkdownBody
           content={doc.content}

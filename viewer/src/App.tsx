@@ -32,7 +32,8 @@ import {
 } from './lib/paneWidths'
 import type { PaneWidths, ResizablePane } from './lib/paneWidths'
 
-const PANE_STORAGE_KEY = 'viewer-pane-widths'
+// 改版后默认栏宽从 300/230 调整为 252/205；换 key 让旧存档作废，回到新默认。
+const PANE_STORAGE_KEY = 'viewer-pane-widths-v2'
 
 /** 仅接受有限数字，忽略损坏或旧格式的本地设置。 */
 function readPaneWidths(): PaneWidths {

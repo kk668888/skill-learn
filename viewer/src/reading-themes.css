@@ -11,7 +11,6 @@
   --reading-heading-weight: 650;
   --reading-size: 15px;
   --reading-leading: 1.75;
-  --reading-measure: 860px;
   --reading-section-gap: 1.6em;
   --reading-surface: #ffffff;
   --reading-ink: #1f2328;
@@ -136,10 +135,6 @@
   outline-offset: 2px;
 }
 
-.main[data-reading-theme] .doc {
-  max-width: var(--reading-measure);
-}
-
 .main[data-reading-theme] .doc-title-line h1,
 .main[data-reading-theme] .markdown-body h1,
 .main[data-reading-theme] .markdown-body h2,
@@ -248,7 +243,6 @@
   --reading-heading-weight: 600;
   --reading-size: 16px;
   --reading-leading: 1.9;
-  --reading-measure: 800px;
   --reading-section-gap: 1.85em;
   --reading-surface: #f8f2e8;
   --reading-ink: #45392c;
@@ -310,7 +304,6 @@
   --reading-quote-surface: transparent;
   --reading-quote-line: #2d674e;
   --reading-table-hover: #e7f0e9;
-  --reading-measure: 820px;
   --reading-section-gap: 1.7em;
 }
 
@@ -358,7 +351,6 @@
   --reading-heading-weight: 700;
   --reading-size: 16px;
   --reading-leading: 1.85;
-  --reading-measure: 790px;
   --reading-section-gap: 1.9em;
   --reading-surface: #fffdfa;
   --reading-ink: #302725;

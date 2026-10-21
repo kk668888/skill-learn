@@ -28,7 +28,6 @@ spacing:
   sidebar-default: "252px"
   toc-default: "205px"
   pane-divider: "6px"
-  reading-max: "860px"
 components:
   document: {}
   sidebar: {}
@@ -66,11 +65,11 @@ components:
 
 ## Typography
 
-应用控件与经典文档、简洁笔记正文采用 frontmatter 的 `sans` 字体栈。纸张阅读正文和标题、精致文章标题采用 `serif`；代码及语言标签采用 `mono`。这些都是本地字体栈，不依赖在线字体。正文默认 15px、行高 1.75；纸张阅读和精致文章为 16px，行高分别为 1.9 和 1.85。正文宽度按风格限定，长代码和宽表格在自身容器横向滚动。
+应用控件与经典文档、简洁笔记正文采用 frontmatter 的 `sans` 字体栈。纸张阅读正文和标题、精致文章标题采用 `serif`；代码及语言标签采用 `mono`。这些都是本地字体栈，不依赖在线字体。正文默认 15px、行高 1.75；纸张阅读和精致文章为 16px，行高分别为 1.9 和 1.85。正文铺满中栏，长代码和宽表格在自身容器横向滚动。
 
 ## Layout
 
-桌面为目录、正文、大纲三栏，默认宽度对应 `sidebar-default`、`toc-default`，两条分隔轨各为 `pane-divider`。中屏隐藏大纲，窄屏把目录收起为入口。正文的最大宽度由 `--reading-measure` 控制，经典文档对应 `reading-max`；其余预设在运行时取 790–820px。文档头的面包屑与阅读样式控件可换行；390px 下保持完整标签与选项。
+桌面为目录、正文、大纲三栏，默认宽度对应 `sidebar-default`、`toc-default`，两条分隔轨各为 `pane-divider`。中屏隐藏大纲，窄屏把目录收起为入口。正文与文档头都横跨整个中栏，仅留内边距。文档头的面包屑与阅读样式控件可换行；390px 下保持完整标签与选项。
 
 ## Elevation & Depth
 
