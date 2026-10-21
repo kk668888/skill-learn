@@ -15,6 +15,7 @@ import { useTheme } from './hooks/useTheme'
 import { useReadingTheme } from './hooks/useReadingTheme'
 import { useHashRoute } from './hooks/useHashRoute'
 import { collectAncestorIds, findFileContext, initialExpandedSuites } from './lib/filter'
+import { suiteKey } from './lib/suiteTheme'
 import { Sidebar } from './components/Sidebar'
 import { DocView } from './components/DocView'
 import { Toc } from './components/Toc'
@@ -347,7 +348,9 @@ export default function App() {
           onResize={handlePaneResize} />
       )}
       {currentPath && (
-        <aside id="viewer-toc" className="toc-panel">{doc && <Toc key={doc.path} content={doc.content} />}</aside>
+        <aside id="viewer-toc" className="toc-panel" data-suite={suiteKey(activeSuiteTitle)}>
+          {doc && <Toc key={doc.path} content={doc.content} />}
+        </aside>
       )}
     </div>
   )

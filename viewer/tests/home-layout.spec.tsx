@@ -50,5 +50,6 @@ it('首页没有大纲栏，进入文档后出现且栏宽变量保留', async (
   // 文档标题与侧栏/面包屑同名，这里只证明文档已打开渲染。
   expect((await screen.findAllByText('技能快速入手')).length).toBeGreaterThan(0)
   expect(document.querySelector('#viewer-toc')).not.toBeNull()
+  expect(document.querySelector('#viewer-toc')!.getAttribute('data-suite')).toBe('superpowers')
   expect(document.querySelector('.app')!.getAttribute('style')).toContain('--toc-width')
 })

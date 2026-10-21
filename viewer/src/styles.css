@@ -666,9 +666,12 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 }
 
 .doc-header {
-  border-bottom: 1px solid var(--border);
-  padding: 8px 0 24px;
+  border-bottom: 1px solid var(--suite-mark);
+  background: var(--suite-soft);
+  color: var(--suite-text);
+  padding: 18px 20px 24px;
   margin-bottom: 28px;
+  border-radius: 10px;
 }
 
 .doc-breadcrumb {
@@ -682,7 +685,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 }
 
 .crumb {
-  color: var(--text-secondary);
+  color: var(--suite-text);
 }
 
 .crumb-current {
@@ -703,13 +706,9 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .doc-title-line { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
 .doc-title-line h1 { margin: 2px 0; font-size: clamp(25px, 3vw, 34px); line-height: 1.25; letter-spacing: -0.025em; }
-.doc-role { padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
-.doc-role-zh { color: #0969da; background: rgba(9, 105, 218, 0.12); }
-.doc-role-design { color: #8250df; background: rgba(130, 80, 223, 0.12); }
-.doc-role-source { color: #1a7f37; background: rgba(26, 127, 55, 0.12); }
-:root[data-theme='dark'] .doc-role-zh { color: #79c0ff; }
-:root[data-theme='dark'] .doc-role-design { color: #d2a8ff; }
-:root[data-theme='dark'] .doc-role-source { color: #7ee787; }
+/* 角色徽章用面板底色突出在套件色带上，边框携带套件识别色。 */
+.doc-role { padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap;
+  background: var(--bg-panel); color: var(--suite-text); border: 1px solid var(--suite-mark); }
 .doc-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 18px; color: var(--text-faint); font-size: 12px; }
 .doc-meta-path { overflow-wrap: anywhere; }
 .reading-progress { position: sticky; top: 0; z-index: 11; height: 2px; margin: -24px -32px 22px; background: linear-gradient(to right, var(--accent) var(--reading-progress, 0%), transparent 0); pointer-events: none; }
@@ -938,9 +937,10 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 }
 
 .toc-item.active {
-  color: var(--accent);
-  border-left-color: var(--accent);
-  background: var(--accent-weak);
+  color: var(--suite-text);
+  border-left-color: var(--suite-mark);
+  background: var(--suite-soft);
+  font-weight: 700;
 }
 
 /* ---------- 响应式 ---------- */

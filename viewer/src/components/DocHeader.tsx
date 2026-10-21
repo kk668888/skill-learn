@@ -4,6 +4,7 @@ import type { FileContext } from '../lib/filter'
 import { extractHeadings } from '../lib/headings'
 import { isReadingTheme, READING_THEMES } from '../lib/readingTheme'
 import type { ReadingTheme } from '../lib/readingTheme'
+import { suiteKey } from '../lib/suiteTheme'
 
 interface DocHeaderProps {
   doc: DocResponse
@@ -22,7 +23,7 @@ export function DocHeader({ doc, context, crossLinks, onNavigate, readingTheme, 
   const headingCount = extractHeadings(doc.content).length
 
   return (
-    <header className="doc-header">
+    <header className="doc-header" data-suite={suiteKey(context?.suite)}>
       <div className="doc-header-top">
         <div className="doc-breadcrumb" aria-label="文档位置">
           {context?.suite && <span className="crumb">{context.suite}</span>}
