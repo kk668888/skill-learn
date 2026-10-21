@@ -92,3 +92,4 @@ export PONYTAIL_DEFAULT_MODE=ultra
 - [ponytail-中文版.md](./ponytail-中文版.md) —— 主技能本体
 - [ponytail-review-中文版.md](./ponytail-review-中文版.md) ｜ [ponytail-audit-中文版.md](./ponytail-audit-中文版.md) ｜ [ponytail-debt-中文版.md](./ponytail-debt-中文版.md) ｜ [ponytail-gain-中文版.md](./ponytail-gain-中文版.md) —— 表中各技能的完整翻译
 - [技能快速入手.md](./技能快速入手.md) —— 跟做一次极简实现
+- [技能原理深度讲解.md](./技能原理深度讲解.md) —— ponytail 套件整体原理

@@ -109,3 +109,4 @@
 - [ponytail-详细设计讲解.md](./ponytail-详细设计讲解.md) —— 登记端（`shortcut:` 注释）的设计
 - [ponytail-audit-详细设计讲解.md](./ponytail-audit-详细设计讲解.md) —— 审查端的豁免语义
 - [ponytail-gain-中文版.md](./ponytail-gain-中文版.md) —— 诚实边界指向本技能的原文
+- [技能原理深度讲解.md](./技能原理深度讲解.md) —— ponytail 套件整体原理

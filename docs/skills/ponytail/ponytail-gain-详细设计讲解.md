@@ -98,3 +98,4 @@ LLM 面对不可计算的问题时的默认行为是**编一个合理的数字**
 - [ponytail-debt-详细设计讲解.md](./ponytail-debt-详细设计讲解.md) —— 被指向的真实数字来源
 - [ponytail-help-详细设计讲解.md](./ponytail-help-详细设计讲解.md) —— 同为展示技能的速查卡
 - [ponytail-详细设计讲解.md](./ponytail-详细设计讲解.md) —— 被度量的那套主纪律
+- [技能原理深度讲解.md](./技能原理深度讲解.md) —— ponytail 套件整体原理

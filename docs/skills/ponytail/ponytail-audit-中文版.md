@@ -98,3 +98,4 @@
 - [ponytail-中文版.md](./ponytail-中文版.md) —— 主技能：梯子与披露机制
 - [ponytail-debt-中文版.md](./ponytail-debt-中文版.md) —— `shortcut:` 台账的登记语义
 - [ponytail-gain-中文版.md](./ponytail-gain-中文版.md) —— 记分板里指向本技能的「还能再删什么」
+- [技能原理深度讲解.md](./技能原理深度讲解.md) —— ponytail 套件整体原理

@@ -78,4 +78,5 @@
 - [ponytail-review-中文版.md](./ponytail-review-中文版.md) ｜ [ponytail-audit-中文版.md](./ponytail-audit-中文版.md) —— 用同一套价值观审查 diff 与全仓
 - [ponytail-debt-中文版.md](./ponytail-debt-中文版.md) —— 收割 `shortcut:` 注释为技术债台账
 - [ponytail-gain-中文版.md](./ponytail-gain-中文版.md) ｜ [ponytail-help-中文版.md](./ponytail-help-中文版.md)
+- [技能原理深度讲解.md](./技能原理深度讲解.md) —— ponytail 套件整体原理
 - [技能快速入手.md](./技能快速入手.md) —— 跟做一次极简实现

@@ -111,3 +111,4 @@ AI 审查代码有两个系统性失败模式。
 - [ponytail-audit-详细设计讲解.md](./ponytail-audit-详细设计讲解.md) —— 整仓版的同源设计
 - [ponytail-详细设计讲解.md](./ponytail-详细设计讲解.md) —— 主技能的梯子与披露机制
 - [ponytail-debt-详细设计讲解.md](./ponytail-debt-详细设计讲解.md) —— `shortcut:` 豁免条款的另一端
+- [技能原理深度讲解.md](./技能原理深度讲解.md) —— ponytail 套件整体原理

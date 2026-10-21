@@ -61,3 +61,4 @@
 - [ponytail-中文版.md](./ponytail-中文版.md) —— 登记 `shortcut:` 注释的主技能
 - [ponytail-review-中文版.md](./ponytail-review-中文版.md) ｜ [ponytail-audit-中文版.md](./ponytail-audit-中文版.md) —— 对已登记捷径的豁免语义
 - [ponytail-help-中文版.md](./ponytail-help-中文版.md) —— 命令速查卡
+- [技能原理深度讲解.md](./技能原理深度讲解.md) —— ponytail 套件整体原理

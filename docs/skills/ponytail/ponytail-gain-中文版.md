@@ -64,3 +64,4 @@
 - [ponytail-debt-中文版.md](./ponytail-debt-中文版.md) —— 唯一真实的按仓库数字来源
 - [ponytail-audit-中文版.md](./ponytail-audit-中文版.md) —— 记分板指向的「还能删什么」
 - [ponytail-help-中文版.md](./ponytail-help-中文版.md) —— 命令速查卡
+- [技能原理深度讲解.md](./技能原理深度讲解.md) —— ponytail 套件整体原理

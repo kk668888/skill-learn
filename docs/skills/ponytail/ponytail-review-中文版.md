@@ -101,3 +101,4 @@
 - [ponytail-中文版.md](./ponytail-中文版.md) —— 主技能：被审查的那套产出纪律
 - [ponytail-audit-中文版.md](./ponytail-audit-中文版.md) —— 同一方法的整仓版本
 - [ponytail-debt-中文版.md](./ponytail-debt-中文版.md) —— `shortcut:` 台账的收割与登记语义
+- [技能原理深度讲解.md](./技能原理深度讲解.md) —— ponytail 套件整体原理

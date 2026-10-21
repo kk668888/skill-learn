@@ -121,3 +121,4 @@ LLM 写代码有一条与训练信号同源的系统性偏见：**更多 = 更�
 - [技能快速入手.md](./技能快速入手.md) —— 跟做一次极简实现
 - [ponytail-review-详细设计讲解.md](./ponytail-review-详细设计讲解.md) ｜ [ponytail-audit-详细设计讲解.md](./ponytail-audit-详细设计讲解.md) —— 审查侧的同源设计
 - [ponytail-debt-详细设计讲解.md](./ponytail-debt-详细设计讲解.md) —— 技术债台账的配套机制
+- [技能原理深度讲解.md](./技能原理深度讲解.md) —— ponytail 套件整体原理

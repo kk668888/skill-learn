@@ -109,3 +109,4 @@ What this repo does + 负载假设
 - [ponytail-review-详细设计讲解.md](./ponytail-review-详细设计讲解.md) —— 单次改动版的同源设计
 - [ponytail-详细设计讲解.md](./ponytail-详细设计讲解.md) —— 主技能的梯子机制
 - [ponytail-debt-详细设计讲解.md](./ponytail-debt-详细设计讲解.md) —— 已登记债务的收割机制
+- [技能原理深度讲解.md](./技能原理深度讲解.md) —— ponytail 套件整体原理

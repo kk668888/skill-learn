@@ -95,3 +95,4 @@ description 匹配 → 调用 help 技能
 - [ponytail-gain-详细设计讲解.md](./ponytail-gain-详细设计讲解.md) —— 同为展示技能的设计
 - [ponytail-详细设计讲解.md](./ponytail-详细设计讲解.md) —— 档位体系的设计出处
 - [技能快速入手.md](./技能快速入手.md) —— 不看卡、直接跟做的上手路径
+- [技能原理深度讲解.md](./技能原理深度讲解.md) —— ponytail 套件整体原理
