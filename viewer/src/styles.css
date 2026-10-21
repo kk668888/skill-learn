@@ -124,6 +124,11 @@ button {
   height: 100vh;
 }
 
+/* 首页没有大纲栏，去掉右侧两列让内容占满；栏宽设置保留，回到文档页即恢复。 */
+.app.app-home {
+  grid-template-columns: var(--sidebar-width, 300px) 6px minmax(0, 1fr);
+}
+
 .sidebar {
   background: var(--bg-panel);
   overflow: hidden;

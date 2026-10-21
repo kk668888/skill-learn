@@ -263,7 +263,8 @@ export default function App() {
     : []
 
   return (
-    <div className="app" style={paneStyle}>
+    // 首页没有文档大纲，右侧留空白栏只会挤压内容，因此收起整列。
+    <div className={cx('app', !currentPath && 'app-home')} style={paneStyle}>
       {uploadOpen && <UploadDialog groups={uploadGroups} onSubmit={handleUpload} onClose={closeUpload} />}
       {sidebarOpen && <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />}
 
@@ -336,10 +337,14 @@ export default function App() {
         )}
       </main>
 
-      <PaneResizeHandle pane="toc" width={visibleWidths.toc} min={PANE_MIN.toc}
-        max={clampPaneWidth('toc', Infinity, visibleWidths.sidebar, viewportWidth)}
-        onResize={handlePaneResize} />
-      <aside id="viewer-toc" className="toc-panel">{doc && <Toc key={doc.path} content={doc.content} />}</aside>
+      {currentPath && (
+        <PaneResizeHandle pane="toc" width={visibleWidths.toc} min={PANE_MIN.toc}
+          max={clampPaneWidth('toc', Infinity, visibleWidths.sidebar, viewportWidth)}
+          onResize={handlePaneResize} />
+      )}
+      {currentPath && (
+        <aside id="viewer-toc" className="toc-panel">{doc && <Toc key={doc.path} content={doc.content} />}</aside>
+      )}
     </div>
   )
 }
