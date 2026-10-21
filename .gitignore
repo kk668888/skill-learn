@@ -19,3 +19,11 @@ Thumbs.db
 
 # 空的误拼文件；正式说明文档是 README.md。
 /RAEDME.md
+
+# docker save 导出的镜像包，仅用于内网传输，不进 Git。
+/skill-learn-viewer.tar
+/skill-learn-viewer.tar.gz
+
+# 离线发布物与上游输入按固定清单重建，不把大型二进制提交到源码仓库。
+/offline-inputs/
+/offline-kit/

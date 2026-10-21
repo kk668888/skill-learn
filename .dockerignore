@@ -2,12 +2,15 @@
 .git
 .agents
 .claude
+!offline-kit/.agents/
+!offline-kit/.agents/**
 openspec
 viewer/node_modules
 viewer/dist
 viewer/dist-server
 viewer/coverage
 viewer/.vite
+offline-inputs
 # 本机未跟踪的个人草稿不应随镜像分发；文件本身仍留在宿主机。
 docs/ai-docs/todo.md
 **/*.tsbuildinfo

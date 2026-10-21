@@ -4,6 +4,8 @@ WORKDIR /app/viewer
 COPY viewer/package.json viewer/package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY viewer/ ./
+# 服务端归档逻辑在构建时会打包仓库根级的离线校验模块。
+COPY offline-kit.mjs /app/offline-kit.mjs
 RUN npm run build
 
 # 最终镜像保留 Node 生产依赖和项目资料，上传只写入两个挂载目录。
@@ -19,6 +21,10 @@ WORKDIR /app
 COPY skills/ ./skills/
 # 完整下载包从 /app 打包；安装脚本必须与 skills/ 同级，解压后才能直接发现套件。
 COPY install-skills.mjs ./install-skills.mjs
+COPY offline-kit.mjs ./offline-kit.mjs
+COPY offline-installer.mjs ./offline-installer.mjs
+# 离线发行目录在发布前预制；缺少目录时 Docker 构建直接失败。
+COPY offline-kit/ ./offline-kit/
 COPY docs/skills/ ./docs/skills/
 COPY docs/ai-docs/ ./docs/ai-docs/
 COPY *.md ./

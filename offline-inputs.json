@@ -1,0 +1,53 @@
+{
+  "format": 1,
+  "targets": [
+    {
+      "agent": "claude",
+      "platform": "win32-x64",
+      "bundles": ["superpowers-claude", "grill-claude", "frontend-design-premium-claude", "openspec", "impeccable", "skill-creator"]
+    },
+    {
+      "agent": "codex",
+      "platform": "win32-x64",
+      "bundles": ["superpowers-codex", "grill-codex", "frontend-design-premium-codex", "openspec", "impeccable", "skill-creator"]
+    }
+  ],
+  "bundles": [
+    {
+      "name": "superpowers-claude", "suite": "superpowers", "agent": "claude", "method": "plugin", "pluginName": "superpowers", "version": "7.0.0", "source": "https://github.com/obra/superpowers/releases/tag/v7.0.0", "license": "MIT",
+      "input": "claude/superpowers", "inputSha256": "1dfb213ffef519857998ce41f9c20fcd7f80676c6a37245fe227377d37de29fb", "output": "payload/claude/plugins/superpowers", "required": [".claude-plugin/plugin.json", "LICENSE", "hooks/hooks.json", "skills/using-superpowers/SKILL.md"]
+    },
+    {
+      "name": "grill-claude", "suite": "grill", "agent": "claude", "method": "plugin", "pluginName": "mattpocock-skills", "version": "1.3.1", "source": "https://github.com/mattpocock/skills/releases/tag/v1.3.1", "license": "MIT",
+      "input": "claude/grill", "inputSha256": "26f48cab4d355d16608ec4f51dd94ed1a86aa8e3c97c5367f2763dc3e97209a3", "output": "payload/claude/plugins/grill", "required": [".claude-plugin/plugin.json", "LICENSE", "skills/productivity/grilling/SKILL.md"]
+    },
+    {
+      "name": "frontend-design-premium-claude", "suite": "frontend-design-premium", "agent": "claude", "method": "plugin", "pluginName": "frontend-design-premium", "version": "1.4.1", "source": "https://github.com/TryHand-Co-Ltd/frontend-design-premium/releases/tag/v1.4.1", "license": "Apache-2.0",
+      "input": "claude/frontend-design-premium", "inputSha256": "49dabfb3f13aaf83be6d21ac693c264f38a6c306fbd1d7c3330df79619523899", "output": "payload/claude/plugins/frontend-design-premium", "required": [".claude-plugin/plugin.json", "LICENSE", "skills/frontend-design/SKILL.md", "skills/frontend-design-premium/SKILL.md"]
+    },
+    {
+      "name": "superpowers-codex", "suite": "superpowers", "agent": "codex", "method": "plugin", "pluginName": "superpowers", "version": "6.3.0", "source": "https://github.com/obra/superpowers", "license": "MIT",
+      "input": "codex/superpowers", "inputSha256": "d5fd47916c04ba287ed89e0e1ff843331635348aa1b0d17dd783fc91bd169d89", "output": "payload/codex/plugins/superpowers", "required": [".codex-plugin/plugin.json", "LICENSE", "skills/using-superpowers/SKILL.md"]
+    },
+    {
+      "name": "grill-codex", "suite": "grill", "agent": "codex", "method": "plugin", "pluginName": "mattpocock-skills", "version": "1.3.1", "source": "https://github.com/mattpocock/skills/releases/tag/v1.3.1", "license": "MIT",
+      "input": "codex/grill", "inputSha256": "5d6885166d8b55404d1c81e2f6f292b828382767248fed17571e2f8989b662e2", "output": "payload/codex/plugins/grill", "required": [".codex-plugin/plugin.json", "LICENSE", "skills/productivity/grilling/SKILL.md"]
+    },
+    {
+      "name": "frontend-design-premium-codex", "suite": "frontend-design-premium", "agent": "codex", "method": "plugin", "pluginName": "frontend-design-premium", "version": "1.4.1", "source": "https://github.com/TryHand-Co-Ltd/frontend-design-premium/releases/tag/v1.4.1", "license": "Apache-2.0",
+      "input": "codex/frontend-design-premium", "inputSha256": "cb190dd20f7ce5c71d55eeb525e72a3684e23b3f16e4ab6bc425c747df0fcdc7", "output": "payload/codex/plugins/frontend-design-premium", "required": [".codex-plugin/plugin.json", "LICENSE", "skills/frontend-design/SKILL.md", "skills/frontend-design-premium/SKILL.md"]
+    },
+    {
+      "name": "openspec", "suite": "openspec", "method": "cli", "version": "1.8.0", "source": "https://www.npmjs.com/package/@fission-ai/openspec/v/1.8.0", "license": "MIT",
+      "input": "shared/openspec", "inputSha256": "4d27c5ad4311a97b2a16673ba1026b84b57e446b7d6bcdecac36ad3dd526406c", "output": "payload/shared/openspec", "required": ["package.json", "bin/openspec.js", "node_modules/@inquirer/core/package.json", "node_modules/yaml/package.json"]
+    },
+    {
+      "name": "impeccable", "suite": "impeccable", "method": "engine", "version": "4.7.0+engine.0.1.16", "source": "https://impeccable.style/api/download/bundle/universal (SHA-256 358c8b6bbc2113e9910bf4adbdba4523612453ec58d56a5c1b14654416a13fe3); https://github.com/pbakaus/impeccable/releases/tag/engine-v0.1.16", "license": "MIT",
+      "input": "shared/impeccable", "inputSha256": "a6bb44bd3ed039abcaf80907b2544e5799e8da3efbae57276622f353975360ed", "output": "payload/shared/impeccable", "required": ["LICENSE", "dist/universal/.agents/skills/impeccable/SKILL.md", "dist/universal/.claude/skills/impeccable/SKILL.md", "dist/universal/.agents/skills/impeccable/scripts/bin/windows-x64/impeccable.exe", "dist/universal/.claude/skills/impeccable/scripts/bin/windows-x64/impeccable.exe"]
+    },
+    {
+      "name": "skill-creator", "suite": "skill-creator", "method": "skill", "version": "snapshot-58787efca31b", "source": "repo-local:skills/anthropics/skill-creator@0882c9caec3f5c1e05a291f242edc9d07acd0516", "license": "Apache-2.0",
+      "input": "shared/skill-creator", "inputSha256": "58787efca31bdd736bf804f01b8bbe4d8fa784128e13ab546313cd33ec854b44", "output": "payload/shared/skill-creator", "required": ["SKILL.md", "LICENSE.txt"]
+    }
+  ]
+}
