@@ -20,6 +20,11 @@ it('未知套件回退中性默认，描述为空', () => {
   expect(suiteDescription('default')).toBe('')
 })
 
+it('套件名撞上 Object 原型属性名时仍回退默认', () => {
+  expect(suiteKey('toString')).toBe('default')
+  expect(suiteKey('constructor')).toBe('default')
+})
+
 it('初次进入只展开最近阅读所属套件，无记录则全收起', () => {
   const tree = buildTree([
     'skills/openspec/opsx/new/SKILL.md',

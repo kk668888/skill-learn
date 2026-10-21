@@ -22,7 +22,8 @@ const DESCRIPTIONS: Record<Exclude<SuiteThemeKey, 'default'>, string> = {
 
 export function suiteKey(title: string | undefined): SuiteThemeKey {
   const normalized = title?.trim().toLowerCase()
-  return normalized && normalized in DESCRIPTIONS ? (normalized as SuiteThemeKey) : 'default'
+  // hasOwn 而非 in：套件名叫 toString 时不能命中 Object 原型属性。
+  return normalized && Object.hasOwn(DESCRIPTIONS, normalized) ? (normalized as SuiteThemeKey) : 'default'
 }
 
 export function suiteDescription(key: SuiteThemeKey): string {

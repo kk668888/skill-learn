@@ -94,5 +94,6 @@ it('目录没有可用入口时不渲染继续卡片，未知套件卡无描述�
 
 it('最近打开显示「套件 · 文档名」消除重名歧义', () => {
   render(<WelcomePanel tree={TREE} recentPaths={['skills/openspec/opsx/new/SKILL.md']} onNavigate={vi.fn()} />)
-  expect(screen.getAllByText(/openspec · /).length).toBeGreaterThan(0)
+  const item = screen.getAllByRole('button', { name: /openspec · / })[0]
+  expect(item.textContent).toContain('最近打开')
 })

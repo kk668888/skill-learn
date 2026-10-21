@@ -9,7 +9,7 @@ export interface PaneWidths {
 
 export type ResizablePane = keyof PaneWidths
 
-export const DEFAULT_PANE_WIDTHS: PaneWidths = { sidebar: 300, toc: 230 }
+export const DEFAULT_PANE_WIDTHS: PaneWidths = { sidebar: 252, toc: 205 }
 export const PANE_MIN = { sidebar: 220, toc: 180 } as const
 export const PANE_MAX = { sidebar: 480, toc: 420 } as const
 

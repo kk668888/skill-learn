@@ -32,6 +32,18 @@ export function DocHeader({ doc, context, crossLinks, onNavigate, readingTheme, 
           {(context?.suite || context?.skill) && <span className="crumb-sep">›</span>}
           <span className="crumb crumb-current">{context?.node.title ?? doc.title}</span>
         </div>
+        {crossLinks.length > 0 && (
+          <nav className="cross-links" aria-label="文档互跳">
+            {crossLinks.map((file) => (
+              <button type="button" key={file.path}
+                className={file.path === doc.path ? 'cross-link current' : 'cross-link'}
+                aria-current={file.path === doc.path ? 'page' : undefined}
+                onClick={() => onNavigate(file.path)}>
+                {roleNames[file.role as keyof typeof roleNames] ?? file.title}
+              </button>
+            ))}
+          </nav>
+        )}
         <div className="reading-theme-control">
           <label htmlFor="reading-theme-select">阅读样式</label>
           <select id="reading-theme-select" value={readingTheme}
@@ -49,18 +61,6 @@ export function DocHeader({ doc, context, crossLinks, onNavigate, readingTheme, 
         <h1>{context?.node.title ?? doc.title}</h1>
         {badge && <span className={`doc-role doc-role-${role}`}>{badge}</span>}
       </div>
-      {crossLinks.length > 0 && (
-        <nav className="cross-links" aria-label="文档互跳">
-          {crossLinks.map((file) => (
-            <button type="button" key={file.path}
-              className={file.path === doc.path ? 'cross-link current' : 'cross-link'}
-              aria-current={file.path === doc.path ? 'page' : undefined}
-              onClick={() => onNavigate(file.path)}>
-              {roleNames[file.role as keyof typeof roleNames] ?? file.title}
-            </button>
-          ))}
-        </nav>
-      )}
       <div className="doc-meta">
         <span>{doc.content.length.toLocaleString('zh-CN')} 字符</span>
         <span>{headingCount} 个标题</span>

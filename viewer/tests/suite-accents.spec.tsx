@@ -27,3 +27,12 @@ it('文档头标注所属套件，未知套件为 default', () => {
   expect(anonymous.container.querySelector('.doc-header')!.getAttribute('data-suite')).toBe('default')
   anonymous.unmount()
 })
+
+it('互跳标签位于文档头顶部工具行，而非标题下方', () => {
+  const { container } = render(
+    <DocHeader doc={doc} context={context('openspec')} crossLinks={[
+      { type: 'file', path: doc.path, title: doc.title, role: 'zh', skillId: 'opsx-new' },
+    ]} onNavigate={() => {}} readingTheme="classic" onReadingThemeChange={() => {}} />,
+  )
+  expect(container.querySelector('.doc-header-top .cross-links')).not.toBeNull()
+})

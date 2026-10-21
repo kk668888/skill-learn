@@ -66,6 +66,10 @@ export function Sidebar({
 
   return (
     <div className="sidebar-inner">
+      <div className="sidebar-brand">
+        <span className="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span>
+        <span className="brand-name">skill-learn</span>
+      </div>
       <div className="sidebar-head">
         <input
           className="search-input"

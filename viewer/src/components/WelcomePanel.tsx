@@ -32,6 +32,7 @@ function entryFile(suite: SuiteNode): FileNode | undefined {
 interface ContinueTarget {
   suite?: string
   eyebrow: string
+  description: string
   action: string
   file: FileNode
 }
@@ -52,6 +53,7 @@ export function WelcomePanel({ tree, recentPaths, onNavigate }: WelcomePanelProp
     continueTarget = {
       suite,
       eyebrow: `继续上次阅读 · ${suite ?? '文档'}`,
+      description: suiteDescription(suiteKey(suite)),
       action: '继续阅读 →',
       file: recentFile,
     }
@@ -60,7 +62,13 @@ export function WelcomePanel({ tree, recentPaths, onNavigate }: WelcomePanelProp
     for (const suite of suites) {
       const target = entryFile(suite)
       if (target) {
-        continueTarget = { suite: suite.title, eyebrow: `从这套开始 · ${suite.title}`, action: '开始阅读 →', file: target }
+        continueTarget = {
+          suite: suite.title,
+          eyebrow: `从这套开始 · ${suite.title}`,
+          description: suiteDescription(suiteKey(suite.title)),
+          action: '开始阅读 →',
+          file: target,
+        }
         break
       }
     }
@@ -75,23 +83,25 @@ export function WelcomePanel({ tree, recentPaths, onNavigate }: WelcomePanelProp
           <p className="welcome-intro">
             从套件快速入手，跟做一次完整实践；再读源码与设计讲解，理解每一步为何存在。
           </p>
-          <div className="welcome-stats" aria-label="文档统计">
-            <div><strong>{suites.length}</strong><span>套件</span></div>
-            <div><strong>{collectSkills(tree).length}</strong><span>技能</span></div>
-            <div><strong>{allFiles.length}</strong><span>文档</span></div>
+          <div className="welcome-metric" aria-label="文档统计">
+            <b>{suites.length}</b> 套件 <b>{collectSkills(tree).length}</b> 技能 <b>{allFiles.length}</b> 文档
           </div>
         </div>
         {continueTarget && (
           <button type="button" className="continue-card" data-suite={suiteKey(continueTarget.suite)}
             onClick={() => onNavigate(continueTarget.file.path)}>
-            <small>{continueTarget.eyebrow}</small>
+            <span className="continue-eyebrow">{continueTarget.eyebrow}</span>
             <strong>{continueTarget.file.title}</strong>
+            {continueTarget.description && <small className="continue-desc">{continueTarget.description}</small>}
             <span className="continue-link">{continueTarget.action}</span>
           </button>
         )}
       </header>
       <section className="welcome-section" aria-labelledby="suite-heading">
-        <h2 id="suite-heading">浏览套件</h2>
+        <div className="section-title">
+          <h2 id="suite-heading">浏览套件</h2>
+          <span>选择一套，进入它的快速入手</span>
+        </div>
         <div className="suite-cards">
           {suites.map((suite) => {
             const target = entryFile(suite)
@@ -119,7 +129,7 @@ export function WelcomePanel({ tree, recentPaths, onNavigate }: WelcomePanelProp
               return (
                 <button type="button" className="recent-item" key={file.path} onClick={() => onNavigate(file.path)}>
                   <span>{suite ? `${suite} · ${file.title}` : file.title}</span>
-                  <small>{file.path}</small>
+                  <small>最近打开</small>
                 </button>
               )
             })}
