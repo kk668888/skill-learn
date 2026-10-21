@@ -14,7 +14,7 @@ import { fetchTree, fetchDoc, fetchSearch, uploadMarkdown, downloadMarkdownArchi
 import { useTheme } from './hooks/useTheme'
 import { useReadingTheme } from './hooks/useReadingTheme'
 import { useHashRoute } from './hooks/useHashRoute'
-import { collectAncestorIds } from './lib/filter'
+import { collectAncestorIds, findFileContext, initialExpandedSuites } from './lib/filter'
 import { Sidebar } from './components/Sidebar'
 import { DocView } from './components/DocView'
 import { Toc } from './components/Toc'
@@ -97,8 +97,8 @@ export default function App() {
       .then((t) => {
         if (!cancelled) {
           setTree(t)
-          // 默认展开所有套件，进页面就能看到全貌
-          setExpanded(new Set(t.filter((n) => n.type === 'suite').map((n) => n.id)))
+          // 学习地图的初次展开：只展开最近阅读所属的套件，其余保持收起。
+          setExpanded(initialExpandedSuites(t, readRecent()))
         }
       })
       .catch((e: unknown) => {
@@ -262,6 +262,9 @@ export default function App() {
       .map((node) => ({ id: node.id, title: node.title }))]
     : []
 
+  // 套件识别色跟着当前文档走：侧栏套件行、文档头和大纲共用这一个判断。
+  const activeSuiteTitle = tree && currentPath ? findFileContext(tree, currentPath)?.suite : undefined
+
   return (
     // 首页没有文档大纲，右侧留空白栏只会挤压内容，因此收起整列。
     <div className={cx('app', !currentPath && 'app-home')} style={paneStyle}>
@@ -274,6 +277,7 @@ export default function App() {
             key={sidebarVersion}
             tree={tree}
             currentPath={currentPath}
+            activeSuiteTitle={activeSuiteTitle}
             expanded={expanded}
             onSelect={handleSelect}
             onToggleNode={handleToggleNode}

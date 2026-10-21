@@ -17,6 +17,8 @@ import { cx } from '../lib/cx'
 interface SidebarProps {
   tree: TreeRoot
   currentPath: string | null
+  /** 当前文档所属套件名，透传给目录树的套件行选中态 */
+  activeSuiteTitle?: string
   expanded: Set<string>
   onSelect: (path: string) => void
   onToggleNode: (id: string) => void
@@ -39,6 +41,7 @@ interface SidebarProps {
 export function Sidebar({
   tree,
   currentPath,
+  activeSuiteTitle,
   expanded,
   onSelect,
   onToggleNode,
@@ -118,6 +121,7 @@ export function Sidebar({
           <TreeView
             nodes={tree}
             currentPath={currentPath}
+            activeSuiteTitle={activeSuiteTitle}
             expanded={expanded}
             onSelect={onSelect}
             onToggle={onToggleNode}
