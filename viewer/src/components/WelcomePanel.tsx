@@ -1,7 +1,8 @@
-/** 无文档选中时的入口：统计、按套件导航、最近打开。 */
+/** 无文档选中时的学习入口：引导语、继续卡片、按套件导航与最近打开。 */
 import { useMemo } from 'react'
 import type { FileNode, SuiteNode, TreeRoot } from '../../shared/types'
-import { collectFiles, collectSkills } from '../lib/filter'
+import { collectFiles, collectSkills, findFileContext } from '../lib/filter'
+import { suiteDescription, suiteKey } from '../lib/suiteTheme'
 
 interface WelcomePanelProps {
   tree: TreeRoot
@@ -27,6 +28,14 @@ function entryFile(suite: SuiteNode): FileNode | undefined {
     ?? files[0]
 }
 
+/** 继续卡片的目标：眉标区分“接着读”与“第一次”，没有可用入口时整卡不出现。 */
+interface ContinueTarget {
+  suite?: string
+  eyebrow: string
+  action: string
+  file: FileNode
+}
+
 export function WelcomePanel({ tree, recentPaths, onNavigate }: WelcomePanelProps) {
   const suites = tree.filter((node): node is SuiteNode => node.type === 'suite')
   const allFiles = useMemo(() => collectFiles(tree), [tree])
@@ -36,27 +45,66 @@ export function WelcomePanel({ tree, recentPaths, onNavigate }: WelcomePanelProp
     return file ? [file] : []
   })
 
+  const recentFile = recentPaths.length > 0 ? fileByPath.get(recentPaths[0]) : undefined
+  let continueTarget: ContinueTarget | undefined
+  if (recentFile) {
+    const suite = findFileContext(tree, recentFile.path)?.suite
+    continueTarget = {
+      suite,
+      eyebrow: `继续上次阅读 · ${suite ?? '文档'}`,
+      action: '继续阅读 →',
+      file: recentFile,
+    }
+  } else {
+    // 没有最近记录时，按树序找第一套有可用入口的套件作为起点。
+    for (const suite of suites) {
+      const target = entryFile(suite)
+      if (target) {
+        continueTarget = { suite: suite.title, eyebrow: `从这套开始 · ${suite.title}`, action: '开始阅读 →', file: target }
+        break
+      }
+    }
+  }
+
   return (
     <div className="welcome">
-      <header className="welcome-header">
-        <h1>skill-learn 文档查看器</h1>
-        <p>从套件开始，阅读技能源码与中文讲解。</p>
+      <header className="welcome-hero">
+        <div>
+          <p className="welcome-eyebrow">AI 工作流学习空间</p>
+          <h1>选一条路径，<br />把方法学会。</h1>
+          <p className="welcome-intro">
+            从套件快速入手，跟做一次完整实践；再读源码与设计讲解，理解每一步为何存在。
+          </p>
+          <div className="welcome-stats" aria-label="文档统计">
+            <div><strong>{suites.length}</strong><span>套件</span></div>
+            <div><strong>{collectSkills(tree).length}</strong><span>技能</span></div>
+            <div><strong>{allFiles.length}</strong><span>文档</span></div>
+          </div>
+        </div>
+        {continueTarget && (
+          <button type="button" className="continue-card" data-suite={suiteKey(continueTarget.suite)}
+            onClick={() => onNavigate(continueTarget.file.path)}>
+            <small>{continueTarget.eyebrow}</small>
+            <strong>{continueTarget.file.title}</strong>
+            <span className="continue-link">{continueTarget.action}</span>
+          </button>
+        )}
       </header>
-      <div className="welcome-stats" aria-label="文档统计">
-        <div><strong>{suites.length}</strong><span>套件</span></div>
-        <div><strong>{collectSkills(tree).length}</strong><span>技能</span></div>
-        <div><strong>{allFiles.length}</strong><span>文档</span></div>
-      </div>
       <section className="welcome-section" aria-labelledby="suite-heading">
         <h2 id="suite-heading">浏览套件</h2>
         <div className="suite-cards">
           {suites.map((suite) => {
             const target = entryFile(suite)
+            const key = suiteKey(suite.title)
+            const description = suiteDescription(key)
             return (
-              <button type="button" className="suite-card" key={suite.id}
+              <button type="button" className="suite-card" data-suite={key} key={suite.id}
                 disabled={!target} onClick={() => target && onNavigate(target.path)}>
                 <span className="suite-card-name">{suite.title}</span>
-                <span className="suite-card-count">{collectSkills(suite.children).length} 个技能 · {collectFiles(suite.children).length} 篇文档</span>
+                {description && <span className="suite-card-desc">{description}</span>}
+                <span className="suite-card-count">
+                  {collectSkills(suite.children).length} 个技能 · {collectFiles(suite.children).length} 篇文档
+                </span>
               </button>
             )
           })}
@@ -66,11 +114,15 @@ export function WelcomePanel({ tree, recentPaths, onNavigate }: WelcomePanelProp
         <section className="welcome-section" aria-labelledby="recent-heading">
           <h2 id="recent-heading">最近打开</h2>
           <div className="recent-list">
-            {recentFiles.map((file) => (
-              <button type="button" className="recent-item" key={file.path} onClick={() => onNavigate(file.path)}>
-                <span>{file.title}</span><small>{file.path}</small>
-              </button>
-            ))}
+            {recentFiles.map((file) => {
+              const suite = findFileContext(tree, file.path)?.suite
+              return (
+                <button type="button" className="recent-item" key={file.path} onClick={() => onNavigate(file.path)}>
+                  <span>{suite ? `${suite} · ${file.title}` : file.title}</span>
+                  <small>{file.path}</small>
+                </button>
+              )
+            })}
           </div>
         </section>
       )}
