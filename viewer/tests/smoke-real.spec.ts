@@ -15,11 +15,10 @@ const files = scanProject(PROJECT_ROOT)
 const tree = buildTree(files)
 
 describe('真实仓库冒烟', () => {
-  it('已有快速入手的套件（六套）均被扫描并进入欢迎页可导航的文件树', () => {
+  it('已有快速入手的套件（七套）均被扫描并进入欢迎页可导航的文件树', () => {
     // 欢迎页入口依赖文件节点的真实路径；只写教程但未被扫描时，套件卡片无法跳转。
-    // ponytail 尚未撰写技能文档，故不在本断言内。
     const index = buildFileIndex(tree)
-    for (const suite of ['anthropics', 'frontend-design-premium', 'grill', 'impeccable', 'openspec', 'superpowers']) {
+    for (const suite of ['anthropics', 'frontend-design-premium', 'grill', 'impeccable', 'openspec', 'ponytail', 'superpowers']) {
       const path = `docs/skills/${suite}/技能快速入手.md`
       expect(files).toContain(path)
       expect(index.has(path)).toBe(true)
