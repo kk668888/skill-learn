@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * 外网制包入口。调用者先把固定版本的上游发行物放入输入目录；本程序逐字节
- * 收录普通文件、生成摘要，并在完整校验通过后一次性发布 offline-kit/。
+ * 收录普通文件、生成摘要，并在完整校验通过后一次性发布 offline/kit/。
  * 输入阶段不执行上游代码；内网安装只使用本程序发布的本地 payload。
  */
 import { createHash, randomUUID } from 'node:crypto';
@@ -159,8 +159,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       if (!args[index + 1]) throw new Error(`${flag} 缺少路径`);
       return path.resolve(args[index + 1]);
     };
-    const inputRoot = value('--input', path.join(HERE, 'offline-inputs'));
-    const outputRoot = value('--output', path.join(HERE, 'offline-kit'));
+    const inputRoot = value('--input', path.join(HERE, 'inputs'));
+    const outputRoot = value('--output', path.join(HERE, 'kit'));
     const planPath = value('--plan', path.join(HERE, 'offline-inputs.json'));
     try {
       const plan = JSON.parse(await readFile(planPath, 'utf8'));

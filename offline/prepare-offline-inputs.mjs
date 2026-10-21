@@ -69,7 +69,7 @@ async function main() {
     options.set(args[i], path.resolve(args[i + 1]));
   }
   for (const flag of sourceFlags) if (!options.has(flag)) throw new Error(`缺少参数：${flag}`);
-  const output = options.get('--output') ?? path.join(HERE, 'offline-inputs');
+  const output = options.get('--output') ?? path.join(HERE, 'inputs');
   if (await lstat(output).catch(() => null)) throw new Error(`输入目录已存在，请先人工检查：${output}`);
 
   const claudeSuper = options.get('--claude-superpowers');

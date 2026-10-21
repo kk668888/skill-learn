@@ -23,7 +23,7 @@ function usage() {
     '  --scope project|user   Claude 插件与独立技能范围，默认 project；Codex 插件由宿主管理在用户级',
     '  --dry-run             仅显示计划，不写入任何目标文件',
     '  --status              查看目标现状及冲突，不执行安装',
-    '  --kit <路径>          离线目录，默认与脚本同级的 offline-kit/',
+    '  --kit <路径>          离线目录，默认与脚本同级的 kit/',
     '  --host-bin <路径>     宿主 CLI 的可执行文件；Codex Desktop 建议显式传入',
     '  --help                显示帮助',
     '',
@@ -32,7 +32,7 @@ function usage() {
 }
 
 function parseArgs(argv) {
-  const options = { tool: null, project: process.cwd(), kit: path.join(HERE, 'offline-kit'),
+  const options = { tool: null, project: process.cwd(), kit: path.join(HERE, 'kit'),
     scope: 'project', bundles: [], dryRun: false, status: false, list: false, help: false, hostBin: null };
   for (let index = 0; index < argv.length; index++) {
     const arg = argv[index];

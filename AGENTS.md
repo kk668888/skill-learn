@@ -6,8 +6,8 @@
 
 | 路径 | 作用 |
 |------|------|
-| `skills/` | **技能源码**，按套件分组：`skills/<套件>/<技能名>/SKILL.md`。同时被 `install-skills.mjs` 和技能文档规范读取 |
-| `install-skills.mjs` | 安装脚本，把 `skills/` 下的技能打平装到 Codex 技能目录。`node install-skills.mjs --help` 看用法 |
+| `skills/` | **技能源码**，按套件分组：`skills/<套件>/<技能名>/SKILL.md`。同时被 `offline/install-skills.mjs` 和技能文档规范读取 |
+| `offline/` | **离线发行与安装**：安装/制包脚本、锁定清单 `offline-inputs.json`；`inputs/` 与 `kit/` 为不进 Git 的构建产物 |
 | `CONTEXT.md` | 本项目术语表（按 `domain-modeling` 规范维护） |
 | `docs/skills/` | **技能文档**，见下 |
 

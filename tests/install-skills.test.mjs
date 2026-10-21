@@ -5,9 +5,9 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { buildOfflineKit } from '../build-offline-kit.mjs';
+import { buildOfflineKit } from '../offline/build-offline-kit.mjs';
 
-const SCRIPT = fileURLToPath(new URL('../install-skills.mjs', import.meta.url));
+const SCRIPT = fileURLToPath(new URL('../offline/install-skills.mjs', import.meta.url));
 const REPO = fileURLToPath(new URL('..', import.meta.url));
 
 /** 只构造独立技能，不依赖本机插件配置，专门检查静态验证和幂等复制。 */
@@ -482,7 +482,7 @@ test('冲突套件跳过但其余套件继续安装，整批以状态码 2 结�
   }
 });
 
-test('默认读取脚本同级 offline-kit 且不依赖当前目录', async () => {
+test('默认读取脚本同级 kit 且不依赖当前目录', async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'skill-learn-default-kit-'));
   const project = path.join(root, 'project');
   try {
@@ -491,15 +491,16 @@ test('默认读取脚本同级 offline-kit 且不依赖当前目录', async () =
     await mkdir(project);
     await writeFile(path.join(input, 'skill-creator', 'SKILL.md'), '# Skill Creator\n');
     await writeFile(path.join(input, 'skill-creator', 'references', 'guide.md'), '# Guide\n');
-    await buildOfflineKit({ inputRoot: input, outputRoot: path.join(root, 'offline-kit'), plan: {
+    await buildOfflineKit({ inputRoot: input, outputRoot: path.join(root, 'offline', 'kit'), plan: {
       format: 1,
       targets: [{ agent: 'codex', platform: `${process.platform}-${process.arch}`, bundles: ['skill-creator'] }],
       bundles: [{ name: 'skill-creator', suite: 'skill-creator', method: 'skill', version: 'test', source: 'fixture', license: 'MIT', input: 'skill-creator', output: 'payload/shared/skill-creator', required: ['SKILL.md'] }],
     } });
+    await mkdir(path.join(root, 'offline'), { recursive: true });
     for (const name of ['install-skills.mjs', 'offline-installer.mjs', 'offline-kit.mjs']) {
-      await cp(path.join(REPO, name), path.join(root, name));
+      await cp(path.join(REPO, 'offline', name), path.join(root, 'offline', name));
     }
-    const result = spawnSync(process.execPath, [path.join(root, 'install-skills.mjs'), '--tool', 'codex',
+    const result = spawnSync(process.execPath, [path.join(root, 'offline', 'install-skills.mjs'), '--tool', 'codex',
       '--project', project, '--bundle', 'skill-creator'], { encoding: 'utf8', cwd: project });
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.stdout, /成功/);

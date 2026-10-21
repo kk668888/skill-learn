@@ -12,7 +12,7 @@ import type { Response } from 'express'
 import yazl from 'yazl'
 import { scanProject } from './scanner'
 import { scanInstallableFiles } from './archive-inventory'
-import { verifyOfflineKit } from '../../offline-kit.mjs'
+import { verifyOfflineKit } from '../../offline/offline-kit.mjs'
 
 interface Entry {
   absolute: string
@@ -59,20 +59,20 @@ export async function sendMarkdownArchive(
     const installable = scanInstallableFiles(root)
     // 没有安装内容的空测试项目仍可下载空 ZIP。有安装脚本的项目必须先
     // 完整验证同级离线目录，随后只收录清单列出的文件及校验模块自身。
-    const verified = installable.includes('install-skills.mjs')
-      ? await verifyOfflineKit(join(root, 'offline-kit'), { snapshot: 'disk' })
+    const verified = installable.includes('offline/install-skills.mjs')
+      ? await verifyOfflineKit(join(root, 'offline', 'kit'), { snapshot: 'disk' })
       : null
     disposeSnapshot = verified?.dispose
     const snapshotReal = verified?.snapshotRoot ? realpathSync(verified.snapshotRoot) : null
-    const offline = verified?.paths.map((name) => `offline-kit/${name}`) ?? []
+    const offline = verified?.paths.map((name) => `offline/kit/${name}`) ?? []
     const paths = [...new Set([
       ...scanPaths(root), ...installable,
-      ...(offline.length ? ['offline-kit.mjs', 'offline-installer.mjs', ...offline] : []),
+      ...(offline.length ? ['offline/offline-kit.mjs', 'offline/offline-installer.mjs', ...offline] : []),
     ])].sort()
     const entries: Entry[] = paths.map((relativePath) => {
-      const offlineEntry = relativePath.startsWith('offline-kit/')
+      const offlineEntry = relativePath.startsWith('offline/kit/')
       const absolute = offlineEntry && verified?.snapshotRoot
-        ? join(verified.snapshotRoot, ...relativePath.slice('offline-kit/'.length).split('/'))
+        ? join(verified.snapshotRoot, ...relativePath.slice('offline/kit/'.length).split('/'))
         : join(root, ...relativePath.split('/'))
       // 先完成所有预检，使常见缺失/不可读错误能在 ZIP 响应开始前返回 JSON。
       // 离线条目从私有磁盘快照读取，始终是校验过的原字节；其他资料仍

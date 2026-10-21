@@ -24,7 +24,7 @@ function put(relative: string, bytes: Buffer | string): void {
 function putOfflineFixture(): void {
   const relative = 'payload/plugin/.claude-plugin/plugin.json'
   const bytes = Buffer.from('{"name":"demo"}\n')
-  put(`offline-kit/${relative}`, bytes)
+  put(`offline/kit/${relative}`, bytes)
   const manifest = {
     format: 1,
     targets: [{ agent: 'claude', platform: 'win32-x64', bundles: ['demo'] }],
@@ -32,8 +32,8 @@ function putOfflineFixture(): void {
     files: [{ path: relative, size: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') }],
   }
   const manifestBytes = Buffer.from(`${JSON.stringify(manifest)}\n`)
-  put('offline-kit/manifest.json', manifestBytes)
-  put('offline-kit/complete.json', `${JSON.stringify({ manifestSha256: createHash('sha256').update(manifestBytes).digest('hex') })}\n`)
+  put('offline/kit/manifest.json', manifestBytes)
+  put('offline/kit/complete.json', `${JSON.stringify({ manifestSha256: createHash('sha256').update(manifestBytes).digest('hex') })}\n`)
 }
 
 beforeEach(async () => {
@@ -43,9 +43,9 @@ beforeEach(async () => {
   put('skills/demo/commands/example.md', '# 示例命令\n')
   put('skills/demo/.hidden.js', '不能进入下载包')
   put('skills/demo/node_modules/dependency.js', '不能进入下载包')
-  put('install-skills.mjs', '#!/usr/bin/env node\n')
-  put('offline-kit.mjs', 'export const fixture = true\n')
-  put('offline-installer.mjs', 'export const fixture = true\n')
+  put('offline/install-skills.mjs', '#!/usr/bin/env node\n')
+  put('offline/offline-kit.mjs', 'export const fixture = true\n')
+  put('offline/offline-installer.mjs', 'export const fixture = true\n')
   putOfflineFixture()
   put('docs/skills/demo/中文版.md', '# 中文版\n')
   put('docs/ai-docs/笔记.md', Buffer.from([0xef, 0xbb, 0xbf, 0x23, 0x20, 0x41, 0x0d, 0x0a]))
@@ -81,12 +81,12 @@ it('将全部可浏览 Markdown 与可安装的技能源码按原路径和原始
     'docs/ai-docs/笔记.md',
     'docs/collections/读书/第一章.md',
     'docs/skills/demo/中文版.md',
-    'install-skills.mjs',
-    'offline-kit.mjs',
-    'offline-installer.mjs',
-    'offline-kit/complete.json',
-    'offline-kit/manifest.json',
-    'offline-kit/payload/plugin/.claude-plugin/plugin.json',
+    'offline/install-skills.mjs',
+    'offline/offline-kit.mjs',
+    'offline/offline-installer.mjs',
+    'offline/kit/complete.json',
+    'offline/kit/manifest.json',
+    'offline/kit/payload/plugin/.claude-plugin/plugin.json',
     'skills/demo/commands/example.md',
     'skills/demo/SKILL.md',
     'skills/demo/scripts/run.js',
@@ -101,14 +101,14 @@ it('将全部可浏览 Markdown 与可安装的技能源码按原路径和原始
 })
 
 it('离线目录缺失或文件摘要不符时拒绝下载', async () => {
-  rmSync(join(root, 'offline-kit', 'payload', 'plugin', '.claude-plugin', 'plugin.json'))
+  rmSync(join(root, 'offline', 'kit', 'payload', 'plugin', '.claude-plugin', 'plugin.json'))
   const response = await fetch(`${base}/api/download`)
   expect(response.status).toBe(500)
   expect(response.headers.get('content-type')).toContain('application/json')
 })
 
 it('校验后离线文件被等长替换时 ZIP 仍使用校验过的字节', async () => {
-  const relative = 'offline-kit/payload/plugin/.claude-plugin/plugin.json'
+  const relative = 'offline/kit/payload/plugin/.claude-plugin/plugin.json'
   const target = join(root, ...relative.split('/'))
   const original = readFileSync(target)
   const altered = Buffer.alloc(original.length, 0x58)
@@ -157,7 +157,7 @@ it('完整下载后删除用于固定归档字节的临时磁盘快照', async (
 })
 
 it('存在技能源码但安装脚本缺失时拒绝提供不可安装的 ZIP', async () => {
-  rmSync(join(root, 'install-skills.mjs'))
+  rmSync(join(root, 'offline', 'install-skills.mjs'))
   const response = await fetch(`${base}/api/download`)
   expect(response.status).toBe(500)
   expect(response.headers.get('content-type')).toContain('application/json')

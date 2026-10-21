@@ -6,8 +6,8 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { verifyOfflineKit } from '../offline-kit.mjs';
-import { buildOfflineKit, fingerprintTree } from '../build-offline-kit.mjs';
+import { verifyOfflineKit } from '../offline/offline-kit.mjs';
+import { buildOfflineKit, fingerprintTree } from '../offline/build-offline-kit.mjs';
 
 /**
  * 使用极小的真实目录测试清单校验。这里刻意不模拟哈希函数：安装脚本和下载接口
@@ -164,7 +164,7 @@ test('发布命令拒绝缺少输入摘要的自定义计划', async () => {
       bundles: [{ name: 'demo', method: 'skill', version: '1.0.0', source: 'fixture', license: 'MIT',
         input: 'plugin', output: 'payload/plugin' }],
     }));
-    const result = spawnSync(process.execPath, [fileURLToPath(new URL('../build-offline-kit.mjs', import.meta.url)),
+    const result = spawnSync(process.execPath, [fileURLToPath(new URL('../offline/build-offline-kit.mjs', import.meta.url)),
       '--input', input, '--output', output, '--plan', planPath], { encoding: 'utf8' });
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, /输入摘要/);

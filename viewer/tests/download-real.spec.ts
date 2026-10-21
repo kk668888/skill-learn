@@ -38,16 +38,16 @@ it('真实下载包解压后可列出七套并预览，且包含平台引擎与�
   }
   expect(entries['skills/impeccable/impeccable/scripts/modern-screenshot.umd.js']).toBeDefined()
   expect(entries['skills/openspec/commands/opsx/apply.md']).toBeDefined()
-  expect(entries['offline-installer.mjs']).toBeDefined()
-  expect(entries['offline-kit/.claude-plugin/marketplace.json']).toBeDefined()
-  expect(entries['offline-kit/.agents/plugins/marketplace.json']).toBeDefined()
-  expect(entries['offline-kit/payload/shared/openspec/node_modules/yaml/package.json']).toBeDefined()
-  expect(entries['offline-kit/payload/claude/plugins/ponytail/.claude-plugin/plugin.json']).toBeDefined()
-  expect(entries['offline-kit/payload/claude/plugins/ponytail/skills/ponytail/SKILL.md']).toBeDefined()
-  expect(entries['offline-kit/payload/codex/plugins/ponytail/.codex-plugin/plugin.json']).toBeDefined()
-  expect(entries['offline-kit/payload/shared/impeccable/dist/universal/.agents/skills/impeccable/scripts/bin/windows-x64/impeccable.exe']).toBeDefined()
+  expect(entries['offline/offline-installer.mjs']).toBeDefined()
+  expect(entries['offline/kit/.claude-plugin/marketplace.json']).toBeDefined()
+  expect(entries['offline/kit/.agents/plugins/marketplace.json']).toBeDefined()
+  expect(entries['offline/kit/payload/shared/openspec/node_modules/yaml/package.json']).toBeDefined()
+  expect(entries['offline/kit/payload/claude/plugins/ponytail/.claude-plugin/plugin.json']).toBeDefined()
+  expect(entries['offline/kit/payload/claude/plugins/ponytail/skills/ponytail/SKILL.md']).toBeDefined()
+  expect(entries['offline/kit/payload/codex/plugins/ponytail/.codex-plugin/plugin.json']).toBeDefined()
+  expect(entries['offline/kit/payload/shared/impeccable/dist/universal/.agents/skills/impeccable/scripts/bin/windows-x64/impeccable.exe']).toBeDefined()
 
-  const output = execFileSync(process.execPath, [join(extractionRoot, 'install-skills.mjs'), '--list'], {
+  const output = execFileSync(process.execPath, [join(extractionRoot, 'offline', 'install-skills.mjs'), '--list'], {
     cwd: extractionRoot,
     encoding: 'utf8',
   })
@@ -56,14 +56,14 @@ it('真实下载包解压后可列出七套并预览，且包含平台引擎与�
     expect(output).toContain(`[${suite}]`)
   }
   const preview = execFileSync(process.execPath, [
-    join(extractionRoot, 'install-skills.mjs'), '--tool', 'codex', '--project', extractionRoot,
+    join(extractionRoot, 'offline', 'install-skills.mjs'), '--tool', 'codex', '--project', extractionRoot,
     '--bundle', 'skill-creator', '--dry-run',
   ], { cwd: extractionRoot, encoding: 'utf8' })
   expect(preview).toContain('预览：codex / win32-x64')
   expect(preview).toContain('skill-creator：ready')
 
   // 清单必须携带可追溯的来源、许可证与逐文件摘要，完成标记摘要与 ZIP 内字节一致。
-  const manifest = JSON.parse(new TextDecoder().decode(entries['offline-kit/manifest.json'])) as {
+  const manifest = JSON.parse(new TextDecoder().decode(entries['offline/kit/manifest.json'])) as {
     targets: { agent: string; platform: string; bundles: string[] }[]
     bundles: { name: string; version?: string; source?: string; license?: string }[]
     files: { path: string; size: number; sha256?: string }[]
@@ -80,8 +80,8 @@ it('真实下载包解压后可列出七套并预览，且包含平台引擎与�
   expect(manifest.files.length).toBeGreaterThan(0)
   const filesWithoutDigest = manifest.files.filter((file) => !/^[0-9a-f]{64}$/.test(file.sha256 ?? ''))
   expect(filesWithoutDigest.map((file) => file.path)).toEqual([])
-  const complete = JSON.parse(new TextDecoder().decode(entries['offline-kit/complete.json'])) as { manifestSha256?: string }
-  expect(complete.manifestSha256).toBe(createHash('sha256').update(entries['offline-kit/manifest.json']).digest('hex'))
+  const complete = JSON.parse(new TextDecoder().decode(entries['offline/kit/complete.json'])) as { manifestSha256?: string }
+  expect(complete.manifestSha256).toBe(createHash('sha256').update(entries['offline/kit/manifest.json']).digest('hex'))
 
   expect(entries['skill-learn-bundle.zip']).toBeUndefined()
 }, 60_000)

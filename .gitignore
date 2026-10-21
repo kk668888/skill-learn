@@ -25,5 +25,5 @@ Thumbs.db
 /skill-learn-viewer.tar.gz
 
 # 离线发布物与上游输入按固定清单重建，不把大型二进制提交到源码仓库。
-/offline-inputs/
-/offline-kit/
+/offline/inputs/
+/offline/kit/

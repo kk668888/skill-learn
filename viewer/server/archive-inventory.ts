@@ -39,17 +39,17 @@ export function scanInstallableFiles(root: string): string[] {
 }
 
 /**
- * 安装脚本必须与 skills/ 同级。若技能文件已经存在却缺少脚本，就在开始
+ * 安装脚本位于 offline/ 内。若技能文件已经存在却缺少脚本，就在开始
  * 发送 ZIP 前抛错，避免用户收到一个外观正常、解压后却无法安装的包。
  */
 function installerPaths(root: string, files: string[]): string[] {
   try {
-    if (!lstatSync(join(root, 'install-skills.mjs')).isFile()) {
+    if (!lstatSync(join(root, 'offline', 'install-skills.mjs')).isFile()) {
       throw new Error('技能安装脚本不是普通文件')
     }
     // 反向缺失同样是坏包：只有脚本、没有技能源码时，--list 会显示零套。
     if (files.length === 0) throw new Error('存在安装脚本，但找不到技能源码')
-    files.push('install-skills.mjs')
+    files.push('offline/install-skills.mjs')
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
     if (files.length > 0) throw new Error('技能源码存在，但缺少 install-skills.mjs')
