@@ -8,7 +8,8 @@
  * - 目录里直接含 SKILL.md → 该目录是一个技能（不管嵌套多深，openspec 的
  *   skills/openspec/skills/<name>/ 就是靠这条规则识别的）
  * - docs/skills/<套件>/<技能名>-中文版.md / -详细设计讲解.md 按文件名前缀挂到同名技能
- * - docs/skills/<套件>/技能原理深度讲解.md 挂套件节点
+ * - docs/skills/<套件>/技能快速入手.md 与 技能原理深度讲解.md 挂套件节点，
+ *   且排在技能之前（快速入手最先，原理讲解其次）
  * - docs/ai-docs/ 与 docs/collections/<分组名>/ 独立成组，不参与技能配对；AI 导读排在文章前面
  * - 配不上的文档/散文件不丢弃，直接挂套件节点（宁可展示多余，不可静默丢数据）
  */
@@ -23,6 +24,7 @@ import type {
   DocRole,
 } from '../shared/types'
 
+const SUITE_QUICKSTART_FILENAME = '技能快速入手.md'
 const SUITE_INTRO_FILENAME = '技能原理深度讲解.md'
 const ZH_SUFFIX = '-中文版.md'
 const DESIGN_SUFFIX = '-详细设计讲解.md'
@@ -46,6 +48,7 @@ interface SkillData {
 interface SuiteData {
   name: string
   skills: Map<string, SkillData>
+  quickStartPath?: string
   introPath?: string
   /** skills/ 下不属于任何技能的文件（相对套件目录） */
   leftovers: string[]
@@ -125,7 +128,9 @@ export function buildTree(files: string[]): TreeRoot {
     const suite = suiteOf(rest.slice(0, slash))
     const filename = rest.slice(slash + 1)
 
-    if (filename === SUITE_INTRO_FILENAME) {
+    if (filename === SUITE_QUICKSTART_FILENAME) {
+      suite.quickStartPath = f
+    } else if (filename === SUITE_INTRO_FILENAME) {
       suite.introPath = f
     } else if (filename.endsWith(ZH_SUFFIX)) {
       const skillName = baseTitle(filename.slice(0, -ZH_SUFFIX.length))
@@ -147,7 +152,10 @@ export function buildTree(files: string[]): TreeRoot {
     const data = suites.get(name)!
     const children: TreeNode[] = []
 
-    // 5.1 套件总览排最前
+    // 5.1 套件文档排最前：技能快速入手 → 技能原理深度讲解，技能节点在其后
+    if (data.quickStartPath) {
+      children.push(fileNode(data.quickStartPath, baseTitle(SUITE_QUICKSTART_FILENAME), 'extra'))
+    }
     if (data.introPath) {
       children.push(fileNode(data.introPath, baseTitle(SUITE_INTRO_FILENAME), 'suite-intro'))
     }

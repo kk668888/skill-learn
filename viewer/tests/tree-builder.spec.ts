@@ -112,6 +112,22 @@ describe('buildTree：套件与技能识别', () => {
     expect(suites.map((s) => s.title)).toEqual(['grill', 'openspec', 'superpowers'])
   })
 
+  it('套件文档排最前：技能快速入手 → 技能原理深度讲解，技能节点在其后', () => {
+    const t = buildTree([
+      'docs/skills/superpowers/技能快速入手.md',
+      'docs/skills/superpowers/技能原理深度讲解.md',
+      'skills/superpowers/brainstorming/SKILL.md',
+      'docs/skills/superpowers/brainstorming-中文版.md',
+    ])
+    const suite = t.find((n) => n.type === 'suite')
+    const children = childrenOf(suite!)
+    expect(children.slice(0, 2).map((c) => (c as FileNode).title)).toEqual([
+      '技能快速入手',
+      '技能原理深度讲解',
+    ])
+    expect(children[2]?.type).toBe('skill')
+  })
+
   it('含 SKILL.md 的目录被识别为技能，深层目录（openspec/skills/<name>）也能识别', () => {
     const skill = findNode(tree, (n) => n.type === 'skill' && n.title === 'openspec-new-change')
     expect(skill).toBeDefined()
