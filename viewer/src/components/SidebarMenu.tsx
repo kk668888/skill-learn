@@ -99,11 +99,12 @@ export function SidebarMenu({
           <button
             type="button"
             className="sidebar-menu-item"
-            aria-label="下载完整资料与技能包"
+            aria-label="下载完整资料与离线技能包"
+            title="一次下载全部资料和包内清单列明平台的离线安装内容"
             disabled={downloading}
             onClick={() => runAndClose(onDownload)}
           >
-            {downloading ? '正在打包…' : '下载完整资料与技能包'}
+            {downloading ? '正在打包…' : '下载完整资料与离线技能包'}
           </button>
           <button type="button" className="sidebar-menu-item" onClick={() => runAndClose(onToggleTheme)}>
             {isDark ? '切换到浅色主题' : '切换到深色主题'}

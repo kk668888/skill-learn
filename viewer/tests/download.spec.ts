@@ -1,7 +1,7 @@
 /** 使用真实 HTTP 响应和 ZIP 解包验证：完整资料含可浏览文档及技能安装文件。 */
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { ReadStream, mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
-import { randomBytes } from 'node:crypto'
+import { createHash, randomBytes } from 'node:crypto'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import type { Server } from 'node:http'
@@ -20,6 +20,22 @@ function put(relative: string, bytes: Buffer | string): void {
   writeFileSync(path, bytes)
 }
 
+/** 与生产环境相同的双层摘要，测试隐藏插件清单也确实进入 ZIP。 */
+function putOfflineFixture(): void {
+  const relative = 'payload/plugin/.claude-plugin/plugin.json'
+  const bytes = Buffer.from('{"name":"demo"}\n')
+  put(`offline-kit/${relative}`, bytes)
+  const manifest = {
+    format: 1,
+    targets: [{ agent: 'claude', platform: 'win32-x64', bundles: ['demo'] }],
+    bundles: [{ name: 'demo', method: 'plugin', version: '1.0.0', source: 'fixture', license: 'MIT' }],
+    files: [{ path: relative, size: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') }],
+  }
+  const manifestBytes = Buffer.from(`${JSON.stringify(manifest)}\n`)
+  put('offline-kit/manifest.json', manifestBytes)
+  put('offline-kit/complete.json', `${JSON.stringify({ manifestSha256: createHash('sha256').update(manifestBytes).digest('hex') })}\n`)
+}
+
 beforeEach(async () => {
   root = mkdtempSync(join(tmpdir(), 'viewer-download-'))
   put('skills/demo/SKILL.md', '# 源码\n')
@@ -28,6 +44,9 @@ beforeEach(async () => {
   put('skills/demo/.hidden.js', '不能进入下载包')
   put('skills/demo/node_modules/dependency.js', '不能进入下载包')
   put('install-skills.mjs', '#!/usr/bin/env node\n')
+  put('offline-kit.mjs', 'export const fixture = true\n')
+  put('offline-installer.mjs', 'export const fixture = true\n')
+  putOfflineFixture()
   put('docs/skills/demo/中文版.md', '# 中文版\n')
   put('docs/ai-docs/笔记.md', Buffer.from([0xef, 0xbb, 0xbf, 0x23, 0x20, 0x41, 0x0d, 0x0a]))
   put('docs/collections/读书/第一章.md', '# 第一章\n')
@@ -63,6 +82,11 @@ it('将全部可浏览 Markdown 与可安装的技能源码按原路径和原始
     'docs/collections/读书/第一章.md',
     'docs/skills/demo/中文版.md',
     'install-skills.mjs',
+    'offline-kit.mjs',
+    'offline-installer.mjs',
+    'offline-kit/complete.json',
+    'offline-kit/manifest.json',
+    'offline-kit/payload/plugin/.claude-plugin/plugin.json',
     'skills/demo/commands/example.md',
     'skills/demo/SKILL.md',
     'skills/demo/scripts/run.js',
@@ -74,6 +98,62 @@ it('将全部可浏览 Markdown 与可安装的技能源码按原路径和原始
   expect(Buffer.from(entries['docs/ai-docs/笔记.md'])).toEqual(
     Buffer.from([0xef, 0xbb, 0xbf, 0x23, 0x20, 0x41, 0x0d, 0x0a]),
   )
+})
+
+it('离线目录缺失或文件摘要不符时拒绝下载', async () => {
+  rmSync(join(root, 'offline-kit', 'payload', 'plugin', '.claude-plugin', 'plugin.json'))
+  const response = await fetch(`${base}/api/download`)
+  expect(response.status).toBe(500)
+  expect(response.headers.get('content-type')).toContain('application/json')
+})
+
+it('校验后离线文件被等长替换时 ZIP 仍使用校验过的字节', async () => {
+  const relative = 'offline-kit/payload/plugin/.claude-plugin/plugin.json'
+  const target = join(root, ...relative.split('/'))
+  const original = readFileSync(target)
+  const altered = Buffer.alloc(original.length, 0x58)
+  const app = express()
+  app.get('/api/download', (_request, response) => {
+    // scanPaths 在离线目录校验之后调用，精确模拟校验与归档之间的等长替换。
+    sendMarkdownArchive(root, response, () => {
+      writeFileSync(target, altered)
+      return []
+    })
+  })
+  const isolated = app.listen(0)
+  await new Promise<void>((resolve) => isolated.once('listening', resolve))
+  try {
+    const address = isolated.address()
+    if (!address || typeof address === 'string') throw new Error('故障服务没有端口')
+    const response = await fetch(`http://127.0.0.1:${address.port}/api/download`)
+    expect(response.status).toBe(200)
+    const entries = unzipSync(new Uint8Array(await response.arrayBuffer()))
+    expect(Buffer.from(entries[relative])).toEqual(original)
+  } finally {
+    await new Promise<void>((resolve) => isolated.close(() => resolve()))
+  }
+})
+
+it('完整下载后删除用于固定归档字节的临时磁盘快照', async () => {
+  const scratch = join(root, 'snapshot-temp')
+  mkdirSync(scratch)
+  const previousTemp = process.env.TEMP
+  const previousTmp = process.env.TMP
+  try {
+    process.env.TEMP = scratch
+    process.env.TMP = scratch
+    const response = await fetch(`${base}/api/download`)
+    expect(response.status).toBe(200)
+    await response.arrayBuffer()
+    await vi.waitFor(() => {
+      expect(readdirSync(scratch).filter((name) => name.startsWith('skill-learn-snapshot-'))).toEqual([])
+    })
+  } finally {
+    if (previousTemp === undefined) delete process.env.TEMP
+    else process.env.TEMP = previousTemp
+    if (previousTmp === undefined) delete process.env.TMP
+    else process.env.TMP = previousTmp
+  }
 })
 
 it('存在技能源码但安装脚本缺失时拒绝提供不可安装的 ZIP', async () => {
