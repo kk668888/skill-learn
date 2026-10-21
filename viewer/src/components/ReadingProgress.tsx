@@ -1,11 +1,10 @@
 /** 监听正文滚动容器，以一帧一次的频率更新阅读进度。 */
 import { useEffect, useRef } from 'react'
-import type { ReadingTheme } from '../lib/readingTheme'
 
-export function ReadingProgress({ docPath, readingTheme }: { docPath: string; readingTheme: ReadingTheme }) {
+export function ReadingProgress({ docPath }: { docPath: string }) {
   const barRef = useRef<HTMLDivElement>(null)
 
-  // 只有打开另一篇文档才回到顶部；阅读样式切换仅会改变排版高度。
+  // 只有打开另一篇文档才回到顶部。
   useEffect(() => {
     const main = barRef.current?.closest('.main') as HTMLElement | null
     if (!main) return
@@ -15,7 +14,7 @@ export function ReadingProgress({ docPath, readingTheme }: { docPath: string; re
   useEffect(() => {
     const main = barRef.current?.closest('.main') as HTMLElement | null
     if (!main) return
-    // 风格改变后重新量取正文高度；不触碰滚动位置，只刷新进度百分比。
+    // 正文高度或窗口尺寸变化后重新量取；不触碰滚动位置，只刷新进度百分比。
     let frame = 0
     const update = () => {
       frame = 0
@@ -34,7 +33,7 @@ export function ReadingProgress({ docPath, readingTheme }: { docPath: string; re
       window.removeEventListener('resize', schedule)
       if (frame) cancelAnimationFrame(frame)
     }
-  }, [docPath, readingTheme])
+  }, [docPath])
 
   return <div ref={barRef} className="reading-progress" aria-hidden="true" />
 }

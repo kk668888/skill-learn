@@ -16,13 +16,13 @@ const context = (suite?: string): FileContext => ({
 it('文档头标注所属套件，未知套件为 default', () => {
   const { container } = render(
     <DocHeader doc={doc} context={context('openspec')} crossLinks={[]}
-      onNavigate={() => {}} readingTheme="classic" onReadingThemeChange={() => {}} />,
+      onNavigate={() => {}} />,
   )
   expect(container.querySelector('.doc-header')!.getAttribute('data-suite')).toBe('openspec')
 
   const anonymous = render(
     <DocHeader doc={doc} context={context()} crossLinks={[]}
-      onNavigate={() => {}} readingTheme="classic" onReadingThemeChange={() => {}} />,
+      onNavigate={() => {}} />,
   )
   expect(anonymous.container.querySelector('.doc-header')!.getAttribute('data-suite')).toBe('default')
   anonymous.unmount()
@@ -32,7 +32,7 @@ it('互跳标签位于文档头顶部工具行，而非标题下方', () => {
   const { container } = render(
     <DocHeader doc={doc} context={context('openspec')} crossLinks={[
       { type: 'file', path: doc.path, title: doc.title, role: 'zh', skillId: 'opsx-new' },
-    ]} onNavigate={() => {}} readingTheme="classic" onReadingThemeChange={() => {}} />,
+    ]} onNavigate={() => {}} />,
   )
   expect(container.querySelector('.doc-header-top .cross-links')).not.toBeNull()
 })

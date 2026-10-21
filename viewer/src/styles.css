@@ -27,6 +27,8 @@
   --shadow: 0 1px 3px rgba(31, 35, 40, 0.08);
   --sidebar-bg: #f0f1f8;
   --toc-bg: #f9fafe;
+  /* 正文排版固定使用设计稿的中文衬线栈。 */
+  --font-serif: 'Songti SC', 'Noto Serif CJK SC', 'Source Han Serif SC', SimSun, serif;
 }
 
 :root[data-theme='dark'] {
@@ -52,7 +54,7 @@
   --toc-bg: #10141b;
 }
 
-/* ---------- 套件识别色：只用于导航、入口、文档头，不进正文阅读主题 ----------
+/* ---------- 套件识别色：只用于导航、入口、文档头，不进正文 ----------
    任意元素带 data-suite="<key>" 后子树可用 --suite-mark/soft/text；
    key 由 src/lib/suiteTheme.ts 的 suiteKey() 生成，未知套件用 default。 */
 [data-suite='openspec']                { --suite-mark: #626dbe; --suite-soft: #e0e3f8; --suite-text: #394691; }
@@ -702,8 +704,27 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   padding: 0 0 96px;
 }
 
+/* 正文区固定为设计稿配色：蓝墨正文、淡蓝引用、深蓝代码块；深色模式单独取值。 */
 .doc-body {
+  --article-ink: #414a5a;
+  --article-heading: #30394a;
+  --article-quote-ink: #4b5687;
+  --quote-bg: #f4f5fb;
+  --quote-border: #6572be;
+  --row-hover: #eef1fa;
+  --code-bg: #eceef6;
+  --pre-bg: #202943;
   padding: 32px 43px 0;
+}
+
+:root[data-theme='dark'] .doc-body {
+  --article-ink: #d7dee9;
+  --article-heading: #e6edf3;
+  --article-quote-ink: #aab4dc;
+  --quote-bg: #1b222c;
+  --quote-border: #7c8ccc;
+  --row-hover: #23344a;
+  --code-bg: #252c35;
 }
 
 .doc-header {
@@ -750,7 +771,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 }
 
 .doc-title-line { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
-.doc-title-line h1 { margin: 2px 0; font-size: clamp(25px, 3vw, 34px); line-height: 1.25; letter-spacing: -0.025em; }
+.doc-title-line h1 { margin: 2px 0; font-family: var(--font-serif); font-size: clamp(25px, 3vw, 34px); line-height: 1.25; letter-spacing: -0.025em; }
 /* 角色徽章用面板底色突出在套件色带上，边框携带套件识别色。 */
 .doc-role { padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap;
   background: var(--bg-panel); color: var(--suite-text); border: 1px solid var(--suite-mark); }
@@ -780,8 +801,11 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .markdown-body {
   word-wrap: break-word;
+  overflow-wrap: anywhere;
+  font-family: var(--font-serif);
   font-size: 15px;
-  line-height: 1.75;
+  line-height: 1.85;
+  color: var(--article-ink);
 }
 
 .markdown-body h1,
@@ -790,25 +814,27 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .markdown-body h4,
 .markdown-body h5,
 .markdown-body h6 {
-  margin: 1.6em 0 0.6em;
+  margin: 1.8em 0 0.6em;
   line-height: 1.35;
   scroll-margin-top: 16px;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  color: var(--article-heading);
 }
 
 .markdown-body h1 {
   font-size: 1.7em;
-  padding-bottom: 0.3em;
-  border-bottom: 1px solid var(--border);
 }
 
+/* 二级标题用固定强调线建立设计稿的精致文章层次。 */
 .markdown-body h2 {
   font-size: 1.4em;
-  padding-bottom: 0.25em;
-  border-bottom: 1px solid var(--border);
+  padding: 0 0 0 14px;
+  border-left: 4px solid var(--quote-border);
 }
 
 .markdown-body h3 {
-  font-size: 1.2em;
+  font-size: 1.25em;
 }
 .heading-anchor { margin-left: 9px; padding: 0 4px; color: var(--accent); opacity: 0; font-size: 0.72em; vertical-align: middle; }
 .markdown-body h1:hover .heading-anchor, .markdown-body h2:hover .heading-anchor,
@@ -848,37 +874,52 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   border-radius: 4px;
 }
 
+/* 代码块恒为设计稿的深蓝底，文字与工具栏按这块底色取色，明暗模式共用。 */
 .markdown-body pre {
   background: var(--pre-bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 14px 16px;
+  border: 0;
+  border-radius: 7px;
+  padding: 14px 17px;
   overflow-x: auto;
   line-height: 1.5;
+  color: #c9d8f4;
 }
 
 .markdown-body pre code {
   background: none;
   padding: 0;
-  font-size: 13px;
+  font-size: 12px;
 }
-.code-block { margin: 1.1em 0; overflow: hidden; border: 1px solid var(--border); border-radius: 8px; background: var(--pre-bg); }
-.code-block-toolbar { display: flex; align-items: center; justify-content: space-between; min-height: 35px; padding: 5px 12px; border-bottom: 1px solid var(--border); color: var(--text-secondary); font-size: 12px; }
+.code-block { margin: 1.1em 0; overflow: hidden; border: 0; border-radius: 7px; background: var(--pre-bg); color: #c9d8f4; }
+.code-block-toolbar { display: flex; align-items: center; justify-content: space-between; min-height: 35px; padding: 5px 12px; border-bottom: 1px solid rgba(201, 216, 244, 0.16); color: #b6c1cc; font-size: 12px; }
 .code-language { font-family: Consolas, 'Cascadia Code', monospace; }
-.code-copy { padding: 3px 8px; border-radius: 4px; color: var(--text-secondary); }
-.code-copy:hover { color: var(--accent); background: var(--accent-weak); }
+.code-copy { padding: 3px 8px; border-radius: 4px; color: #b6c1cc; }
+.code-copy:hover, .code-copy:focus-visible { color: #ffffff; background: rgba(201, 216, 244, 0.14); }
 .markdown-body .code-block pre { margin: 0; border: 0; border-radius: 0; }
 
+/* ---------- 语法高亮：代码块恒为深底，两种明暗模式共用同一套浅色 token ---------- */
+.hljs-keyword, .hljs-selector-tag, .hljs-meta { color: #ff938a; }
+.hljs-string, .hljs-regexp { color: #a5d6ff; }
+.hljs-comment { color: #a3acb8; }
+.hljs-number, .hljs-literal { color: #79c0ff; }
+.hljs-title, .hljs-title.function_, .hljs-class { color: #d2a8ff; }
+.hljs-attr, .hljs-attribute, .hljs-variable, .hljs-template-variable { color: #79c0ff; }
+.hljs-built_in, .hljs-section, .hljs-name { color: #aff5b4; }
+.hljs-type, .hljs-title.class_ { color: #d2a8ff; }
+.hljs-params, .hljs-subst, .hljs-property { color: inherit; }
+.hljs-symbol, .hljs-bullet, .hljs-link, .hljs-doctag { color: #a5d6ff; }
+.hljs-addition { color: #aff5b4; background: rgba(46, 160, 67, 0.18); }
+.hljs-deletion { color: #ffa198; background: rgba(248, 81, 73, 0.18); }
+
 .markdown-body blockquote {
-  margin: 0.8em 0;
-  padding: 6px 14px;
-  position: relative;
-  border-left: 4px solid var(--quote-border);
+  margin: 18px 0;
+  padding: 12px 17px;
+  border-left: 3px solid var(--quote-border);
   background: var(--quote-bg);
-  border-radius: 0 6px 6px 0;
-  color: var(--text-secondary);
+  border-radius: 0;
+  color: var(--article-quote-ink);
+  font-size: 13px;
 }
-.markdown-body blockquote::before { content: '“'; position: absolute; right: 12px; top: 0; color: var(--quote-border); opacity: 0.3; font: 38px Georgia, serif; line-height: 1; }
 
 .markdown-body table {
   border-collapse: collapse;

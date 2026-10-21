@@ -7,17 +7,14 @@ import { collectFiles, findFileContext } from '../lib/filter'
 import { MarkdownBody } from './MarkdownBody'
 import { DocHeader } from './DocHeader'
 import { ReadingProgress } from './ReadingProgress'
-import type { ReadingTheme } from '../lib/readingTheme'
 
 interface DocViewProps {
   doc: DocResponse
   tree: TreeRoot
   onNavigate: (path: string) => void
-  readingTheme: ReadingTheme
-  onReadingThemeChange: (theme: ReadingTheme) => void
 }
 
-export function DocView({ doc, tree, onNavigate, readingTheme, onReadingThemeChange }: DocViewProps) {
+export function DocView({ doc, tree, onNavigate }: DocViewProps) {
   // 当前文件在树里的位置（套件/技能上下文）
   const context = useMemo(() => findFileContext(tree, doc.path), [tree, doc.path])
 
@@ -34,9 +31,8 @@ export function DocView({ doc, tree, onNavigate, readingTheme, onReadingThemeCha
 
   return (
     <article className="doc">
-      <ReadingProgress docPath={doc.path} readingTheme={readingTheme} />
-      <DocHeader doc={doc} context={context} crossLinks={crossLinks} onNavigate={onNavigate}
-        readingTheme={readingTheme} onReadingThemeChange={onReadingThemeChange} />
+      <ReadingProgress docPath={doc.path} />
+      <DocHeader doc={doc} context={context} crossLinks={crossLinks} onNavigate={onNavigate} />
       {/* 正文列与通栏文档头分离：头部横跨整个中栏，正文铺满中栏、仅留内边距。 */}
       <div className="doc-body">
         <MarkdownBody
