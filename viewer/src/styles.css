@@ -63,7 +63,8 @@
 [data-suite='impeccable']              { --suite-mark: #9a70a6; --suite-soft: #eee4f1; --suite-text: #744f82; }
 [data-suite='anthropics']              { --suite-mark: #4282aa; --suite-soft: #dfedf5; --suite-text: #345f80; }
 [data-suite='frontend-design-premium'] { --suite-mark: #c57a69; --suite-soft: #f3e2dd; --suite-text: #7d453a; }
-[data-suite='default']                 { --suite-mark: #8b949e; --suite-soft: #eef1f4; --suite-text: #424a53; }
+[data-suite='ponytail']                 { --suite-mark: #5f9d43; --suite-soft: #e5f1da; --suite-text: #3f6b28; }
+[data-suite='default']                  { --suite-mark: #8b949e; --suite-soft: #eef1f4; --suite-text: #424a53; }
 
 :root[data-theme='dark'] [data-suite='openspec']                { --suite-mark: #99a3f0; --suite-soft: #2e3260; --suite-text: #c9cef2; }
 :root[data-theme='dark'] [data-suite='superpowers']             { --suite-mark: #6fc5b6; --suite-soft: #1e3b36; --suite-text: #bfe5dd; }
@@ -71,6 +72,7 @@
 :root[data-theme='dark'] [data-suite='impeccable']              { --suite-mark: #c39bd3; --suite-soft: #37293f; --suite-text: #e3cdec; }
 :root[data-theme='dark'] [data-suite='anthropics']              { --suite-mark: #7fb3d5; --suite-soft: #213745; --suite-text: #c4deef; }
 :root[data-theme='dark'] [data-suite='frontend-design-premium'] { --suite-mark: #e0a396; --suite-soft: #422e29; --suite-text: #f0cdc5; }
+:root[data-theme='dark'] [data-suite='ponytail']                { --suite-mark: #8fd072; --suite-soft: #26371c; --suite-text: #d4ecc2; }
 :root[data-theme='dark'] [data-suite='default']                 { --suite-mark: #8b949e; --suite-soft: #21262d; --suite-text: #b0bac4; }
 
 /* ---------- 基础 ---------- */

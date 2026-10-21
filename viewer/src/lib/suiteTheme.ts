@@ -9,6 +9,7 @@ export type SuiteThemeKey =
   | 'impeccable'
   | 'anthropics'
   | 'frontend-design-premium'
+  | 'ponytail'
   | 'default'
 
 const DESCRIPTIONS: Record<Exclude<SuiteThemeKey, 'default'>, string> = {
@@ -18,6 +19,7 @@ const DESCRIPTIONS: Record<Exclude<SuiteThemeKey, 'default'>, string> = {
   impeccable: '设计质量',
   anthropics: '创建技能',
   'frontend-design-premium': '产品界面设计',
+  ponytail: '极简实现',
 }
 
 export function suiteKey(title: string | undefined): SuiteThemeKey {

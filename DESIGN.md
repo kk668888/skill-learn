@@ -61,6 +61,7 @@ components:
 | impeccable | `#9A70A6` | 紫色标记与浅色块 |
 | anthropics | `#4282AA` | 蓝色标记与浅色块 |
 | frontend-design-premium | `#C57A69` | 珊瑚色标记与浅色块 |
+| ponytail | `#5F9D43` | 草绿标记与浅色块 |
 
 ## Typography
 
@@ -68,7 +69,7 @@ components:
 
 ## Layout
 
-桌面为目录、正文、大纲三栏，默认宽度对应 `sidebar-default`、`toc-default`，两条分隔轨各为 `pane-divider`。中屏隐藏大纲，窄屏把目录收起为入口。正文与文档头都横跨整个中栏，仅留内边距。文档头的面包屑与阅读样式控件可换行；390px 下保持完整标签与选项。
+桌面为目录、正文、大纲三栏，默认宽度对应 `sidebar-default`、`toc-default`，两条分隔轨各为 `pane-divider`。中屏隐藏大纲，窄屏把目录收起为入口。正文与文档头都横跨整个中栏，仅留内边距。文档头的面包屑与互跳标签可换行；390px 下保持完整标签与选项。
 
 ## Elevation & Depth
 

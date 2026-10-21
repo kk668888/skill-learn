@@ -11,7 +11,9 @@ it('findFileContext 返回文件所属套件名', () => {
 it('已知套件名映射到稳定 key 与描述', () => {
   expect(suiteKey('OpenSpec')).toBe('openspec')
   expect(suiteKey('frontend-design-premium')).toBe('frontend-design-premium')
+  expect(suiteKey('Ponytail')).toBe('ponytail')
   expect(suiteDescription('grill')).toBe('深挖问题')
+  expect(suiteDescription('ponytail')).toBe('极简实现')
 })
 
 it('未知套件回退中性默认，描述为空', () => {
