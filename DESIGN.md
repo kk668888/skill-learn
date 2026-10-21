@@ -43,7 +43,7 @@ components:
 
 查看器服务于阅读和对照 Superpowers、OpenSpec、grill 等工作流的中文文档。整体参照技术文档阅读器：目录和大纲稳定、信息密度适中，视觉表达集中在正文排版。用户主要在桌面查阅，也可在窄屏阅读；界面用中文，源码与文档可保留原有英文术语。
 
-应用外壳采用产品工具的安静语气。四种阅读样式是已批准的正文变体，不扩散到侧栏、大纲和欢迎页。避免把文档拆成卡片、加入装饰性渐变或用动效干扰连续阅读。
+应用外壳采用产品工具的安静语气。四种阅读样式只作用于正文；套件识别色经 `data-suite` 变量只作用于导航、入口和文档头。避免给每段内容套彩色卡片、加入装饰性渐变或用动效干扰连续阅读。
 
 运行时代码是颜色与尺寸的权威来源：全局变量在 `viewer/src/styles.css`，局部阅读变量在 `viewer/src/reading-themes.css`。本文件记录它们的语义和映射，不生成 CSS。修改上述持久变量时同步更新本文件并检查明暗两种模式。
 
@@ -52,6 +52,17 @@ components:
 全站浅色使用 `--bg`、`--bg-panel`、`--text`、`--text-secondary`、`--border`、`--accent`，分别对应 frontmatter 的 `app-background`、`panel`、`text`、`muted`、`border`、`accent`。深色由根节点 `data-theme='dark'` 覆盖，背景、面板、正文和强调色分别对应 `dark-background`、`dark-panel`、`dark-text`、`dark-accent`。链接、选中项和焦点共用语义强调色。
 
 文档打开时，`.main[data-reading-theme]` 覆盖阅读区域的语义变量；经典文档以白/蓝为基准，纸张阅读用米白/赭色，简洁笔记用灰白/绿色，精致文章用暖白/暗红。每种风格在全局深色模式下有独立的正文、边线、强调色、引用与表格配色。围栏代码另用 `--reading-code-*` 和 `--syntax-*`，其文字颜色必须按代码块背景验证；精致文章的浅色正文也配深色代码块。表格悬停整行着色，焦点轮廓保持可辨。
+
+套件识别色由 `data-suite` 属性触发 `--suite-mark`（标记/轮廓）、`--suite-soft`（浅色面）、`--suite-text`（其上的文字），定义在 `viewer/src/styles.css` 的套件变量区，明暗各一套。key 由 `viewer/src/lib/suiteTheme.ts` 的 `suiteKey()` 生成，与下表对应；未知套件使用 `default` 中性配色，不因缺少映射隐藏内容。颜色是辅助识别线索：套件名、选中态和文档位置始终用文字或形状表达，不能只靠颜色传达。
+
+| 套件 | 基准识别色 | 使用位置 |
+|------|-----------|----------|
+| OpenSpec | `#626DBE` | 紫蓝标记与浅色块 |
+| Superpowers | `#3A9588` | 青绿标记与浅色块 |
+| grill | `#B47D45` | 琥珀标记与浅色块 |
+| impeccable | `#9A70A6` | 紫色标记与浅色块 |
+| anthropics | `#4282AA` | 蓝色标记与浅色块 |
+| frontend-design-premium | `#C57A69` | 珊瑚色标记与浅色块 |
 
 ## Typography
 
