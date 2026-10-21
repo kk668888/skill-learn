@@ -51,7 +51,8 @@ export function findFileContext(tree: TreeRoot, path: string): FileContext | und
         const hit = search(n.children, suite, n)
         if (hit) return hit
       } else {
-        const hit = search(n.children, suite, skillNode)
+        // 只有套件节点才确立“所属套件”；分组/文件夹沿用外层上下文。
+        const hit = search(n.children, n.type === 'suite' ? n.title : suite, skillNode)
         if (hit) return hit
       }
     }
@@ -80,4 +81,15 @@ export function collectAncestorIds(tree: TreeRoot, path: string): string[] {
   }
   walk(tree)
   return ids
+}
+
+/**
+ * 学习地图的初始展开策略：首页初次进入只展开最近阅读所属的套件；
+ * 没有可解析的最近记录时全部收起，靠欢迎页套件入口和搜索进入。
+ */
+export function initialExpandedSuites(tree: TreeRoot, recentPaths: string[]): Set<string> {
+  const recentSuite = recentPaths[0] ? findFileContext(tree, recentPaths[0])?.suite : undefined
+  if (!recentSuite) return new Set()
+  const suite = tree.find((n) => n.type === 'suite' && n.title === recentSuite)
+  return suite ? new Set([suite.id]) : new Set()
 }
