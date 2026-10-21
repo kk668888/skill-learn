@@ -397,6 +397,13 @@ button {
   color: var(--suite-text);
 }
 
+/* data-suite 挂在套件行的包裹层上：当前文档的子行选中态沿用同一套件配色，与父级一致。 */
+[data-suite] .tree-item.active {
+  background: var(--suite-soft);
+  border-left-color: var(--suite-mark);
+  color: var(--suite-text);
+}
+
 .tree-suite.active > .tree-label {
   font-weight: 700;
 }

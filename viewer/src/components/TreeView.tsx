@@ -72,12 +72,11 @@ function NodeView({ node, depth, currentPath, activeSuiteTitle, expanded, onSele
     node.type === 'suite' ? 'tree-suite' : node.type === 'skill' ? 'tree-skill' : 'tree-folder'
   const currentSuite = node.type === 'suite' && node.title === activeSuiteTitle
   return (
-    <div>
+    <div data-suite={node.type === 'suite' ? suiteKey(node.title) : undefined}>
       <button
         type="button"
         className={cx('tree-item', 'tree-branch', branchClass, currentSuite && 'active')}
         style={{ paddingLeft: depth * 12 + 8 }}
-        data-suite={node.type === 'suite' ? suiteKey(node.title) : undefined}
         aria-current={currentSuite ? 'true' : undefined}
         onClick={() => onToggle(node.id)}
       >
