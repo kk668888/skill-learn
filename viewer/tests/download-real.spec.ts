@@ -39,6 +39,7 @@ it('真实下载包解压后可列出七套并预览，且包含平台引擎与�
   expect(entries['skills/impeccable/impeccable/scripts/modern-screenshot.umd.js']).toBeDefined()
   expect(entries['skills/openspec/commands/opsx/apply.md']).toBeDefined()
   expect(entries['offline/offline-installer.mjs']).toBeDefined()
+  expect(entries['安装.bat']).toBeDefined()
   expect(entries['offline/kit/.claude-plugin/marketplace.json']).toBeDefined()
   expect(entries['offline/kit/.agents/plugins/marketplace.json']).toBeDefined()
   expect(entries['offline/kit/payload/shared/openspec/node_modules/yaml/package.json']).toBeDefined()

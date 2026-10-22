@@ -23,7 +23,11 @@ node --test tests/offline-kit.test.mjs
 
 ## 内网安装
 
-把查看器下载的 ZIP 整体解压到目标机器，保留 `offline/` 目录整体结构（安装脚本与 `kit/` 同级）。先查看支持范围和安装计划：
+把查看器下载的 ZIP 整体解压到目标机器，保留 `offline/` 目录整体结构（安装脚本与 `kit/` 同级）。
+
+最简单的开始方式：在 Windows 资源管理器中双击包根目录的 **`安装.bat`**。它会检查 Node 版本，然后启动交互式安装向导——逐步询问目标工具、安装范围、套件与项目目录（每步回车即取默认值），展示安装计划并要求确认；直接回车默认放弃，不改动任何文件。若 SmartScreen 拦截，右键 `安装.bat` →「属性」→「解除锁定」后再双击（内网 ZIP 来自自家人工拷贝，通常不会触发）。
+
+在终端中不带参数运行 `node offline/install-skills.mjs`（交互终端）同样进入向导；自动化场景使用完整参数，先查看支持范围和安装计划：
 
 ```powershell
 node offline/install-skills.mjs --list
@@ -34,3 +38,4 @@ node offline/install-skills.mjs --tool codex --host-bin <codex.exe路径> --proj
 核对冲突后去掉 `--dry-run` 执行。可重复加 `--bundle <名称>` 只选部分套件，用 `--status` 查看现状。`--scope project|user` 控制 Claude 插件与独立技能的安装范围；Codex 插件管理器当前只提供用户级安装，预览会显示其用户级缓存路径，Codex 独立技能仍按 `--scope` 安装。安装器逐项报告成功、跳过和失败；来源不明的同名插件或技能不会被覆盖，旧版脚本留下的副本也不会自动删除。OpenSpec 只在指定项目初始化或更新；Impeccable 以包内编译技能链接到项目并安装项目 hook，因此**安装后仍需保留解压目录**，否则链接的技能和引擎会失效。独立的 skill-creator 连同附属文件复制到目标工具的项目技能目录。在 Windows PowerShell 中运行 skill-creator 随附的 Python 校验脚本前设置 `$env:PYTHONUTF8='1'`，避免系统默认编码无法输出脚本中的字符。
 
 上游参考：[Impeccable](https://github.com/pbakaus/impeccable)。
+

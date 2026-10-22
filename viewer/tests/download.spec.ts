@@ -195,6 +195,14 @@ it('空项目也返回有效的空 ZIP', async () => {
   expect(Object.keys(unzipSync(new Uint8Array(await response.arrayBuffer())))).toEqual([])
 })
 
+it('包根的 Windows 双击安装入口随 ZIP 分发', async () => {
+  put('安装.bat', '@echo off\r\nrem 离线安装向导入口\r\n')
+  const response = await fetch(`${base}/api/download`)
+  expect(response.status).toBe(200)
+  const entries = unzipSync(new Uint8Array(await response.arrayBuffer()))
+  expect(Buffer.from(entries['安装.bat']).toString()).toContain('向导入口')
+})
+
 it('上传成功后重新扫描并下载新文档，下载不修改原文件或创建 Git 状态', async () => {
   const form = new FormData()
   form.append('file', new Blob(['# 新文档\n'], { type: 'text/markdown' }), '新文档.md')

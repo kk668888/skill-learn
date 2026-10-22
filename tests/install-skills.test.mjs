@@ -6,12 +6,13 @@ import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { buildOfflineKit } from '../offline/build-offline-kit.mjs';
+import { collectWizardOptions, installOffline } from '../offline/offline-installer.mjs';
 
 const SCRIPT = fileURLToPath(new URL('../offline/install-skills.mjs', import.meta.url));
 const REPO = fileURLToPath(new URL('..', import.meta.url));
 
 /** 只构造独立技能，不依赖本机插件配置，专门检查静态验证和幂等复制。 */
-async function fixture() {
+async function fixture(tool = 'codex') {
   const root = await mkdtemp(path.join(os.tmpdir(), 'skill-learn-install-'));
   const input = path.join(root, 'inputs');
   const project = path.join(root, 'project');
@@ -25,7 +26,7 @@ async function fixture() {
     outputRoot: kit,
     plan: {
       format: 1,
-      targets: [{ agent: 'codex', platform: `${process.platform}-${process.arch}`, bundles: ['skill-creator'] }],
+      targets: [{ agent: tool, platform: `${process.platform}-${process.arch}`, bundles: ['skill-creator'] }],
       bundles: [{ name: 'skill-creator', suite: 'skill-creator', method: 'skill', version: 'test', source: 'fixture', license: 'MIT', input: 'skill-creator', output: 'payload/shared/skill-creator', required: ['SKILL.md'] }],
     },
   });
@@ -507,5 +508,96 @@ test('默认读取脚本同级 kit 且不依赖当前目录', async () => {
     assert.equal(await readFile(path.join(project, '.agents/skills/skill-creator/references/guide.md'), 'utf8'), '# Guide\n');
   } finally {
     await rm(root, { recursive: true, force: true });
+  }
+});
+
+// ===== 交互式安装向导 =====
+
+/** 假交互实现：按脚本顺序回放答案并记录每个问题，测试不依赖真实 TTY。 */
+function fakeIo(answers) {
+  const questions = [];
+  return {
+    questions,
+    io: {
+      isInteractive: () => true,
+      async prompt(question, fallback = '') {
+        questions.push(question);
+        const answer = answers.shift();
+        if (answer === undefined) throw new Error(`向导多问了一步：${question}`);
+        return answer;
+      },
+    },
+  };
+}
+
+test('向导选项构造：回车全选、编号部分选与非法输入原问重问', async () => {
+  // Claude 路径：范围与套件都直接回车取默认；不应出现宿主路径问题。
+  const claude = fakeIo(['1', '1', '', '']);
+  const claudeOptions = await collectWizardOptions(claude.io);
+  assert.equal(claudeOptions.tool, 'claude');
+  assert.equal(claudeOptions.scope, 'project');
+  assert.deepEqual(claudeOptions.bundles, [], '回车等于全部套件（与 flag 模式默认同构）');
+  assert.equal(claudeOptions.project, process.cwd());
+  assert.equal(claudeOptions.kit, path.join(REPO, 'offline', 'kit'));
+  assert.equal(claudeOptions.hostBin, null);
+  assert.ok(['dryRun', 'status', 'list', 'help'].every((key) => claudeOptions[key] === false));
+  assert.ok(claude.questions.every((question) => !question.includes('宿主')));
+
+  // Codex 路径：非法编号原问重试，直到可解析；宿主路径留空得到 null。
+  const codex = fakeIo(['9', '2', 'abc', '0', '2', 'abc', '99', '2,7', '', '']);
+  const codexOptions = await collectWizardOptions(codex.io);
+  assert.equal(codexOptions.tool, 'codex');
+  assert.equal(codexOptions.scope, 'user');
+  assert.deepEqual(codexOptions.bundles, ['grill', 'skill-creator']);
+  assert.equal(codexOptions.hostBin, null);
+  assert.ok(codex.questions.filter((question) => question.includes('套件编号')).length >= 3,
+    '非法套件输入应原问重问');
+});
+
+test('向导确认 y 后按计划安装，并询问 Codex 宿主程序路径', async () => {
+  const state = await fixture();
+  try {
+    const { io, questions } = fakeIo(['2', '1', '7', state.project, '', 'y']);
+    await installOffline([], io, state.kit);
+    assert.equal(
+      await readFile(path.join(state.project, '.agents/skills/skill-creator/SKILL.md'), 'utf8'),
+      '# Skill Creator\n',
+    );
+    assert.ok(questions.some((question) => question.includes('宿主')));
+    assert.ok(questions.at(-1).includes('确认'), '执行写入前必须经过确认门');
+  } finally {
+    await rm(state.root, { recursive: true, force: true });
+  }
+});
+
+test('向导计划默认放弃时不写入任何文件', async () => {
+  const state = await fixture('claude');
+  try {
+    // 最后一步直接回车（确认门默认 N），目标必须保持原样。
+    const { io } = fakeIo(['1', '1', '7', state.project, '']);
+    await installOffline([], io, state.kit);
+    await assert.rejects(
+      readFile(path.join(state.project, '.claude/skills/skill-creator/SKILL.md')),
+      /ENOENT/,
+    );
+  } finally {
+    await rm(state.root, { recursive: true, force: true });
+  }
+});
+
+test('无参数且非交互终端时打印用法并以非零码结束，不进入向导', async () => {
+  const state = await fixture();
+  try {
+    // spawnSync 默认管道 stdin：子进程内 isTTY 为空，必须走 usage 兜底。
+    const result = spawnSync(process.execPath, [SCRIPT], { encoding: 'utf8' });
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /用法：node install-skills\.mjs/);
+    assert.match(result.stderr, /向导/);
+    await assert.rejects(
+      readFile(path.join(state.project, '.agents/skills/skill-creator/SKILL.md')),
+      /ENOENT/,
+    );
+  } finally {
+    await rm(state.root, { recursive: true, force: true });
   }
 });

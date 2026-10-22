@@ -6,6 +6,7 @@ import { spawnSync } from 'node:child_process';
 import { cp, lstat, mkdir, readFile, readdir, realpath } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { createInterface } from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
 import { verifyOfflineKit } from './offline-kit.mjs';
 
@@ -16,6 +17,7 @@ const SUITES = ['superpowers', 'grill', 'frontend-design-premium', 'ponytail', '
 function usage() {
   return [
     '用法：node install-skills.mjs --tool claude|codex [选项]',
+    '  （无参数 + 交互终端）  进入安装向导；Windows 下也可双击包根目录的 安装.bat',
     '  --list                 查看离线包套件、版本及支持平台',
     '  --tool <名称>          目标工具：claude 或 codex',
     '  --project <路径>       目标项目，默认当前目录',
@@ -55,6 +57,97 @@ function parseArgs(argv) {
   options.project = path.resolve(options.project);
   options.kit = path.resolve(options.kit);
   return options;
+}
+
+/**
+ * 默认交互实现：readline 每问开关一次，避免进程因未关闭的 stdin 挂起。
+ * prompt 与 isInteractive 都是普通函数，测试可注入假实现替代（无需真实 TTY）。
+ */
+function consoleIo() {
+  return {
+    isInteractive: () => Boolean(process.stdin.isTTY),
+    async prompt(question, fallback) {
+      const rl = createInterface({ input: process.stdin, output: process.stdout });
+      try {
+        const answer = (await rl.question(question)).trim();
+        return answer.length > 0 ? answer : fallback;
+      } finally {
+        rl.close();
+      }
+    },
+  };
+}
+
+/** 数字单选：直接回车取 fallback 默认；非法编号打印提示并原问重试。 */
+async function askChoice(io, question, choices, fallback) {
+  for (;;) {
+    const answer = await io.prompt(question, fallback);
+    if (Object.hasOwn(choices, answer)) return choices[answer];
+    console.log(`  无效输入「${answer}」，请重新输入编号`);
+  }
+}
+
+/**
+ * 解析套件编号串。空串返回空数组——与 flag 模式「未指定 = 全部」同义；
+ * 非法输入返回 null，由调用方原问重试；编号允许半角/全角逗号与空白分隔。
+ */
+function parseSuiteSelection(answer) {
+  const trimmed = answer.trim();
+  if (trimmed === '') return [];
+  const picked = [];
+  for (const part of trimmed.split(/[,，\s]+/).filter(Boolean)) {
+    const number = Number(part);
+    if (!Number.isInteger(number) || number < 1 || number > SUITES.length) return null;
+    picked.push(SUITES[number - 1]);
+  }
+  return [...new Set(picked)];
+}
+
+/**
+ * 向导提问序列：工具 → 范围 → 套件多选 → 项目目录 →（Codex 时）宿主路径。
+ * 产出与 parseArgs 同构的 options 对象，注入同一条安装管线；kit 沿用与
+ * 脚本同级的离线目录（ZIP 解压后无需用户指路）。
+ */
+export async function collectWizardOptions(io, kit = path.join(HERE, 'kit')) {
+  console.log(`离线安装向导（Node ${process.versions.node}）——每一步直接回车即采用默认值。`);
+  const tool = await askChoice(io, [
+    '请选择目标工具：',
+    '  1) Claude Code',
+    '  2) Codex',
+    '输入编号 [1]: ',
+  ].join('\n'), { 1: 'claude', 2: 'codex' }, '1');
+  const scope = await askChoice(io, [
+    '请选择安装范围：',
+    '  1) 项目级——装进指定项目目录',
+    '  2) 用户级——装进当前用户主目录',
+    '输入编号 [1]: ',
+  ].join('\n'), { 1: 'project', 2: 'user' }, '1');
+
+  console.log(`请选择要安装的套件（共 ${SUITES.length} 套）：`);
+  SUITES.forEach((name, index) => console.log(`  ${index + 1}) ${name}`));
+  let bundles;
+  for (;;) {
+    const answer = await io.prompt('输入套件编号（逗号分隔）；直接回车=全部: ', '');
+    bundles = parseSuiteSelection(answer);
+    if (bundles) break;
+    console.log(`  无效输入「${answer}」，请输入 1-${SUITES.length} 的编号，例如 1,3,5`);
+  }
+  console.log(bundles.length ? `  已选：${bundles.join('、')}` : '  已选：全部套件');
+
+  const project = await io.prompt(`目标项目目录 [${process.cwd()}]: `, process.cwd());
+  // Codex 宿主可能不在 PATH 上；留空沿用 findHost 的自动查找，找不到再报错。
+  let hostBin = null;
+  if (tool === 'codex') {
+    const answer = await io.prompt('Codex 宿主 CLI 路径（留空自动查找）: ', '');
+    hostBin = answer.length > 0 ? answer : null;
+  }
+  return {
+    tool, scope, bundles,
+    project: path.resolve(project),
+    kit,
+    dryRun: false, status: false, list: false, help: false,
+    hostBin,
+  };
 }
 
 /** 清单中存放的是包内路径；再次检验它，防止完成标记被人为重算后越界读取。 */
@@ -288,8 +381,23 @@ async function execute(bundle, root, host, options, state, registered) {
   }
 }
 
-export async function installOffline(argv = process.argv.slice(2)) {
-  const options = parseArgs(argv);
+export async function installOffline(argv = process.argv.slice(2), io = consoleIo(),
+  // wizardKit 仅供测试注入夹具离线目录；生产路径始终用与脚本同级的 kit/。
+  wizardKit = path.join(HERE, 'kit')) {
+  let interactive = false;
+  let options;
+  if (argv.length === 0) {
+    // 入口分流：无参数 + 交互终端 → 向导；非交互终端不猜默认，给出用法。
+    if (!io.isInteractive()) {
+      console.error(`${usage()}\n\n无参数运行需要交互终端（安装向导）；自动化请显式传参，如 --tool claude。`);
+      process.exitCode = 1;
+      return;
+    }
+    interactive = true;
+    options = await collectWizardOptions(io, wizardKit);
+  } else {
+    options = parseArgs(argv);
+  }
   if (options.help) { console.log(usage()); return; }
   const { manifest } = await verifyOfflineKit(options.kit);
   if (options.list) {
@@ -330,6 +438,14 @@ export async function installOffline(argv = process.argv.slice(2)) {
   console.log(`${options.dryRun ? '预览' : options.status ? '状态' : '安装'}：${options.tool} / ${platform()} → ${options.project}`);
   for (const { bundle, state } of plans) console.log(`  ${bundle.suite ?? bundle.name}：${state.kind}，${state.detail}`);
   if (options.dryRun || options.status) return;
+  if (interactive) {
+    // 确认门：默认 N——一路回车等于什么都没装；此刻计划已打印但尚未写入。
+    const answer = await io.prompt('确认执行以上安装计划？(y/N): ', '');
+    if (!/^y(?:es)?$/i.test(answer)) {
+      console.log('已放弃：未改动任何文件。');
+      return;
+    }
+  }
 
   const result = { success: [], skipped: [], failed: null, pending: [] };
   const registered = { value: false };

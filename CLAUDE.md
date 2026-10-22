@@ -7,7 +7,7 @@
 | 路径                 | 作用                                                                                                        |
 | -------------------- | ----------------------------------------------------------------------------------------------------------- |
 | `skills/`            | **技能源码**，按套件分组：`skills/<套件>/<技能名>/SKILL.md`。同时被 `offline/install-skills.mjs` 和技能文档规范读取 |
-| `offline/`           | **离线发行与安装**：安装/制包脚本、锁定清单 `offline-inputs.json`；`inputs/` 与 `kit/` 为不进 Git 的构建产物 |
+| `offline/`           | **离线发行与安装**：安装/制包脚本、锁定清单 `offline-inputs.json`；`inputs/` 与 `kit/` 为不进 Git 的构建产物。无参数运行 `offline/install-skills.mjs`（交互终端）进入安装向导；包根 `安装.bat` 是 Windows 双击入口 |
 | `CONTEXT.md`         | 本项目术语表（按 `domain-modeling` 规范维护）                                                               |
 | `docs/skills/`       | **技能文档**，见下                                                                                          |
 

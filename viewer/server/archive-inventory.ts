@@ -54,5 +54,12 @@ function installerPaths(root: string, files: string[]): string[] {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
     if (files.length > 0) throw new Error('技能源码存在，但缺少 install-skills.mjs')
   }
+  // 双击入口位于包根目录，与安装脚本同仓库分发；缺失时不阻断打包，
+  // 保持既有清单语义（例如最小测试夹具与空项目 ZIP）。
+  try {
+    if (lstatSync(join(root, '安装.bat')).isFile()) files.push('安装.bat')
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+  }
   return files.sort()
 }
