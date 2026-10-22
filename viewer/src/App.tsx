@@ -323,6 +323,7 @@ export default function App() {
             >
               目录
             </button>
+            <a className="mobile-overview-link" href="/">返回总览</a>
 
             {!currentPath && <WelcomePanel tree={tree} recentPaths={recentPaths} onNavigate={handleSelect} />}
 

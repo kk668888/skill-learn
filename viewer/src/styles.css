@@ -154,6 +154,20 @@ button {
   letter-spacing: -0.03em;
 }
 
+.overview-link {
+  margin-left: auto;
+  white-space: nowrap;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.overview-link:hover,
+.overview-link:focus-visible { color: var(--accent); }
+
+.mobile-overview-link { display: none; }
+
 .brand-mark {
   display: grid;
   grid-template-columns: repeat(2, 7px);
@@ -1094,6 +1108,17 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     background: var(--bg-panel);
     font-size: 13px;
     color: var(--text-secondary);
+  }
+  .overview-link { display: none; }
+  .mobile-overview-link {
+    display: inline-block;
+    position: sticky;
+    top: 8px;
+    z-index: 10;
+    padding: 5px 0;
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 600;
   }
   .doc {
     padding: 0 0 64px;

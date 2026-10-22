@@ -1,5 +1,7 @@
 # skill-learn
 
+访问 `/` 可从学习总览选择“开始学习”或“浏览技能文库”；`/library/` 是文档查看器。本地启动步骤见 [viewer 说明](viewer/README.md)，容器部署见 [Portainer 部署说明](deploy/README.md)。
+
 项目技能源码、中文资料和离线发行内容由查看器的“下载完整资料与离线技能包”操作合并成一个 `skill-learn-bundle.zip`。ZIP 解压后不会自动安装。首次发布支持 **Windows x64** 上已预装的 Claude Code 或 Codex；Node.js 需为 20.19 或更高版本。实际可用组合以包内 `offline/kit/manifest.json` 为准。
 
 ## 外网维护机制包

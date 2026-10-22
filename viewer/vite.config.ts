@@ -7,12 +7,18 @@
  */
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 import type { Connect } from 'vite'
+import { fileURLToPath } from 'node:url'
+import { join } from 'node:path'
 import { createApiApp } from './server/api'
+
+const viewerRoot = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig({
   plugins: [
     react(),
+    tailwindcss(),
     {
       // 把 Express API 以插件钩子的形式挂进 dev server
       name: 'skill-learn-api',
@@ -21,6 +27,14 @@ export default defineConfig({
       },
     },
   ],
+  build: {
+    rollupOptions: {
+      input: {
+        overview: join(viewerRoot, 'index.html'),
+        library: join(viewerRoot, 'library', 'index.html'),
+      },
+    },
+  },
   server: {
     // 固定端口，失败时直接报错而不是悄悄换端口
     port: 5188,
