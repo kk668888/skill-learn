@@ -77,7 +77,6 @@ it('将全部可浏览 Markdown 与可安装的技能源码按原路径和原始
   expect(response.headers.get('content-disposition')).toContain('skill-learn-bundle.zip')
   const entries = unzipSync(new Uint8Array(await response.arrayBuffer()))
   expect(Object.keys(entries).sort()).toEqual([
-    'README.md',
     'docs/ai-docs/笔记.md',
     'docs/collections/读书/第一章.md',
     'docs/skills/demo/中文版.md',
@@ -203,6 +202,17 @@ it('包根的 Windows 双击安装入口随 ZIP 分发', async () => {
   expect(Buffer.from(entries['安装.bat']).toString()).toContain('向导入口')
 })
 
+it('根级工程文档不进下载包，子目录资料照常收录', async () => {
+  const response = await fetch(`${base}/api/download`)
+  expect(response.status).toBe(200)
+  const entries = unzipSync(new Uint8Array(await response.arrayBuffer()))
+  // 根级 README 只在目录树中浏览，ZIP 仅保留子目录资料与安装所需。
+  expect(entries['README.md']).toBeUndefined()
+  expect(entries['docs/skills/demo/中文版.md']).toBeDefined()
+  expect(entries['skills/demo/SKILL.md']).toBeDefined()
+  expect(entries['offline/install-skills.mjs']).toBeDefined()
+})
+
 it('上传成功后重新扫描并下载新文档，下载不修改原文件或创建 Git 状态', async () => {
   const form = new FormData()
   form.append('file', new Blob(['# 新文档\n'], { type: 'text/markdown' }), '新文档.md')
@@ -268,7 +278,8 @@ it('扫描后文件被换成符号链接时拒绝读取范围外内容', async (
 it('客户端取消较大的下载后关闭源流，服务仍可响应目录 API', async () => {
   rmSync(root, { recursive: true, force: true })
   mkdirSync(root)
-  put('README.md', randomBytes(16 * 1024 * 1024))
+  // 大文件放在 docs/ 子目录：根级条目不进下载包，放这里才能占住传输窗口。
+  put('docs/ai-docs/大文件.md', randomBytes(16 * 1024 * 1024))
   const destroy = vi.spyOn(ReadStream.prototype, 'destroy')
   const controller = new AbortController()
   const response = await fetch(`${base}/api/download`, { signal: controller.signal })

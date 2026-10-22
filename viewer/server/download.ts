@@ -66,7 +66,11 @@ export async function sendMarkdownArchive(
     const snapshotReal = verified?.snapshotRoot ? realpathSync(verified.snapshotRoot) : null
     const offline = verified?.paths.map((name) => `offline/kit/${name}`) ?? []
     const paths = [...new Set([
-      ...scanPaths(root), ...installable,
+      // 下载包只收录资料与安装所需：根级工程文档（README、CLAUDE 等）仅在
+      // 目录树中浏览，不进 ZIP——不含 "/" 的相对路径即根级条目。安装所需的
+      // 双击入口 安装.bat 来自安装清单，不经过这路扫描，不受过滤影响。
+      ...scanPaths(root).filter((relative) => relative.includes('/')),
+      ...installable,
       ...(offline.length ? ['offline/offline-kit.mjs', 'offline/offline-installer.mjs', ...offline] : []),
     ])].sort()
     const entries: Entry[] = paths.map((relativePath) => {

@@ -34,7 +34,7 @@ export function scanProject(root: string, options: ScanOptions = DEFAULT_SCAN_OP
   }
 
   // 2. 根级 md：只看非隐藏普通文件，不递归；与子目录的隐藏项排除规则保持一致。
-  //    这份清单同时服务目录和下载，不能让 .secret.md 通过根级特例进入 ZIP。
+  //    这份清单服务目录树；下载侧会自行过滤根级条目（根级工程文档不进下载包）。
   for (const entry of readdirSync(root, { withFileTypes: true })) {
     if (entry.isFile() && !entry.name.startsWith('.') && entry.name.endsWith('.md')) {
       found.push(entry.name)
