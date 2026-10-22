@@ -81,6 +81,21 @@ it('无最近记录时继续卡片回退首个套件入口，标注「从这套�
   expect(onNavigate).toHaveBeenCalledWith('docs/skills/openspec/技能快速入手.md')
 })
 
+it('总览右上角优先展示 SDD 入门卡片，点击直达指南', async () => {
+  const onNavigate = vi.fn()
+  const withGuide = buildTree([
+    'docs/ai-docs/SDD-入门指南.md',
+    'docs/skills/superpowers/技能快速入手.md',
+    'skills/superpowers/brainstorming/SKILL.md',
+  ])
+  render(<WelcomePanel tree={withGuide}
+    recentPaths={['skills/superpowers/brainstorming/SKILL.md']} onNavigate={onNavigate} />)
+  await userEvent.setup().click(screen.getByRole('button', { name: /SDD 入门指南/ }))
+  expect(onNavigate).toHaveBeenCalledWith('docs/ai-docs/SDD-入门指南.md')
+  // 指南在场时右上角不再渲染继续卡片，新人第一入口唯一。
+  expect(screen.queryByRole('button', { name: /继续上次阅读/ })).toBeNull()
+})
+
 it('目录没有可用入口时不渲染继续卡片，未知套件卡无描述但计数可见', () => {
   const onNavigate = vi.fn()
   const empty = render(<WelcomePanel tree={buildTree([])} recentPaths={[]} onNavigate={onNavigate} />)

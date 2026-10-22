@@ -15,6 +15,9 @@ interface WelcomePanelProps {
  * 作为普通文件节点收录，因此用完整相对路径识别，避免同名附属文件误命中。
  * 旧的总览与技能文档回退链继续保留，兼容尚未写快速入手的套件。
  */
+
+/** 总览页右上角的入门入口：指向 docs/ai-docs 下的 SDD 入门指南。 */
+const SDD_GUIDE_PATH = 'docs/ai-docs/SDD-入门指南.md'
 function entryFile(suite: SuiteNode): FileNode | undefined {
   const files = collectFiles(suite.children)
   const quickStart = files.find((file) => file.path === `docs/skills/${suite.title}/技能快速入手.md`)
@@ -47,6 +50,9 @@ export function WelcomePanel({ tree, recentPaths, onNavigate }: WelcomePanelProp
   })
 
   const recentFile = recentPaths.length > 0 ? fileByPath.get(recentPaths[0]) : undefined
+  // 右上角固定给 SDD 入门（新人第一入口）；指南尚未随部署更新的老环境
+  // 回退到继续阅读卡片，保证角落不为空。
+  const sddGuide = fileByPath.get(SDD_GUIDE_PATH)
   let continueTarget: ContinueTarget | undefined
   if (recentFile) {
     const suite = findFileContext(tree, recentFile.path)?.suite
@@ -87,7 +93,16 @@ export function WelcomePanel({ tree, recentPaths, onNavigate }: WelcomePanelProp
             <b>{suites.length}</b> 套件 <b>{collectSkills(tree).length}</b> 技能 <b>{allFiles.length}</b> 文档
           </div>
         </div>
-        {continueTarget && (
+        {sddGuide ? (
+          <button type="button" className="continue-card"
+            data-suite={suiteKey(findFileContext(tree, SDD_GUIDE_PATH)?.suite)}
+            onClick={() => onNavigate(SDD_GUIDE_PATH)}>
+            <span className="continue-eyebrow">第一次来？从这里开始</span>
+            <strong>SDD 入门指南</strong>
+            <small className="continue-desc">两条路线 + 真实案例跟做，30 分钟上手</small>
+            <span className="continue-link">从头开始 →</span>
+          </button>
+        ) : continueTarget && (
           <button type="button" className="continue-card" data-suite={suiteKey(continueTarget.suite)}
             onClick={() => onNavigate(continueTarget.file.path)}>
             <span className="continue-eyebrow">{continueTarget.eyebrow}</span>
