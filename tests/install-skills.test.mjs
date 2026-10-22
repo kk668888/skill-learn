@@ -543,15 +543,25 @@ test('向导选项构造：回车全选、编号部分选与非法输入原问�
   assert.ok(['dryRun', 'status', 'list', 'help'].every((key) => claudeOptions[key] === false));
   assert.ok(claude.questions.every((question) => !question.includes('宿主')));
 
-  // Codex 路径：非法编号原问重试，直到可解析；宿主路径留空得到 null。
-  const codex = fakeIo(['9', '2', 'abc', '0', '2', 'abc', '99', '2,7', '', '']);
+  // Codex 路径：非法编号原问重试；用户级 + 仅插件/技能类套件时不再询问
+  // 项目目录（无目标项目可填），宿主路径留空得到 null。
+  const codex = fakeIo(['9', '2', 'abc', '0', '2', 'abc', '99', '2,7', '']);
   const codexOptions = await collectWizardOptions(codex.io);
   assert.equal(codexOptions.tool, 'codex');
   assert.equal(codexOptions.scope, 'user');
   assert.deepEqual(codexOptions.bundles, ['grill', 'skill-creator']);
+  assert.equal(codexOptions.project, process.cwd(), '用户级且无项目级套件时静默用当前目录');
   assert.equal(codexOptions.hostBin, null);
+  assert.ok(codex.questions.every((question) => !question.includes('目标项目目录')));
   assert.ok(codex.questions.filter((question) => question.includes('套件编号')).length >= 3,
     '非法套件输入应原问重问');
+
+  // 用户级也可能包含项目级套件（openspec 装进项目），此时仍须询问项目目录。
+  const mixed = fakeIo(['2', '2', '5', 'C:\\demo\\project', '']);
+  const mixedOptions = await collectWizardOptions(mixed.io);
+  assert.equal(mixedOptions.scope, 'user');
+  assert.deepEqual(mixedOptions.bundles, ['openspec']);
+  assert.equal(mixedOptions.project, 'C:\\demo\\project');
 });
 
 test('向导确认 y 后按计划安装，并询问 Codex 宿主程序路径', async () => {

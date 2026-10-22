@@ -134,7 +134,14 @@ export async function collectWizardOptions(io, kit = path.join(HERE, 'kit')) {
   }
   console.log(bundles.length ? `  已选：${bundles.join('、')}` : '  已选：全部套件');
 
-  const project = await io.prompt(`目标项目目录 [${process.cwd()}]: `, process.cwd());
+  // 项目目录按需询问：用户级且所选套件全部由宿主/用户主目录承载时，没有
+  // 要写入的目标项目，再问只会让用户困惑（静默采用当前目录即可）。项目级
+  // 范围、以及含 openspec/impeccable（天生项目级）的选择仍需明确目标。
+  const needsProject = scope === 'project' ||
+    bundles.some((name) => name === 'openspec' || name === 'impeccable');
+  const project = needsProject
+    ? await io.prompt(`目标项目目录 [${process.cwd()}]: `, process.cwd())
+    : process.cwd();
   // Codex 宿主可能不在 PATH 上；留空沿用 findHost 的自动查找，找不到再报错。
   let hostBin = null;
   if (tool === 'codex') {
