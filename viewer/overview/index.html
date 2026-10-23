@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>skill-learn · 学习总览</title>
+    <script>
+      // 防闪烁（FOUC）：CSS 加载前恢复上次主题。白天是默认值，因此只需为夜间补写属性。
+      // 键名与取值规则须与 overview/theme.ts 保持一致：仅 'dark' 合法，其余一律白天。
+      try {
+        if (localStorage.getItem('sl-overview-theme') === 'dark') {
+          document.documentElement.dataset.theme = 'dark'
+        }
+      } catch (_) {
+        /* localStorage 不可用时保持默认白天 */
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/overview/main.tsx"></script>
+  </body>
+</html>

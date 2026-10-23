@@ -69,7 +69,8 @@ export function Sidebar({
       <div className="sidebar-brand">
         <span className="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span>
         <span className="brand-name">skill-learn</span>
-        <a className="overview-link" href="/">返回总览</a>
+        {/* 「总览」= 文库首页（库总览）：仅在阅读文档时提供返回入口，hash 路由无刷新切换 */}
+        {currentPath && <a className="overview-link" href="#/">返回总览</a>}
       </div>
       <div className="sidebar-head">
         <input
@@ -135,6 +136,11 @@ export function Sidebar({
       </div>
 
       <div className="sidebar-foot">
+        {/* 学习总览（工具矩阵页）：钉在 md 目录树下方常驻可见，链接形态支持中键/Ctrl 新开标签页 */}
+        <a className="sidebar-overview-link" href="/overview/">
+          学习总览
+          <span aria-hidden="true">↗</span>
+        </a>
         <SidebarMenu
           uploadTriggerRef={uploadTriggerRef}
           onOpenUpload={onOpenUpload}

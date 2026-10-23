@@ -1,9 +1,97 @@
 @import "tailwindcss";
 
+/*
+ * 主题系统：语义 token 驱动的双主题。
+ *
+ * 原理：@theme 里的 --color-* 是「白天主题」的默认值；
+ * html[data-theme='dark'] 上整体覆盖同名变量 → 所有 utility（bg-base、text-fg…）
+ * 只引用 var()，一个属性切换即完成整套换肤。类名里不再出现任何硬编码色值。
+ *
+ * 约定：夜间主题的取值 = 改版前的原始暗色（像素级保持不变），
+ *       白天主题为新增的默认外观。
+ */
 @theme {
+  /* ── 表面层级：页面底 → 顶栏 → 导语区 → 容器 → 详情抽屉 → 工具卡 ── */
+  /* 命名用 page 而非 base：避免与 Tailwind 内置字号工具类 text-base 产生同名歧义 */
+  --color-page: #f5f7fa;
+  --color-header: #ffffff;
+  --color-hero: #edf2f8;
+  --color-panel: #ffffff;
+  --color-aside: #f1f5f9;
+  --color-card: #ffffff;
+  /* 终端对比块在两套主题下都保持深底：模拟真实终端，是浅色版面里的刻意反差点 */
+  --color-code: #0a0e14;
+
+  /* ── 文字层级：标题 → 正文 → 次级 → 弱化 → 极弱注解 ── */
+  /* 浅色取值全部满足 WCAG AA（正文 ≥4.5:1）：faint #64748b 约 4.8:1，fg-muted #475569 约 7:1 */
+  --color-heading: #0f172a;
+  --color-fg: #1e293b;
+  --color-fg-secondary: #334155;
+  --color-fg-muted: #475569;
+  --color-faint: #64748b;
+
+  /* ── 边框层级 ── */
+  --color-line: #e2e8f0;
+  --color-line-soft: #e8edf3;
+  --color-line-strong: #cbd5e1;
+
+  /* ── 强调色（冰蓝）：accent 用于图形/边框/ring/CTA 底，accent-text 用于小字 ── */
+  /* accent 取 sky-700 而非 sky-600：CTA 白字对比度 5.9:1（sky-600 仅 4.1:1，小字不达 AA）；
+     hover 变深（sky-600）符合浅色主题惯例 */
+  --color-accent: #0369a1;
+  --color-accent-text: #0369a1;
+  --color-accent-hover: #0284c7;
+  --color-accent-contrast: #ffffff;
+
+  /* ── 交互与语义状态 ── */
+  --color-hover-fill: #e2e8f0b3;
+  --color-bad: #dc2626;
+  --color-good: #059669;
+
   --font-display: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC",
     "Microsoft YaHei", sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* 夜间主题：恢复改版前的原始暗色取值 */
+html[data-theme="dark"] {
+  --color-page: #0b0f17;
+  --color-header: #080b11;
+  --color-hero: #0e1520;
+  --color-panel: #121824;
+  --color-aside: #151d2b;
+  --color-card: #0e131b;
+
+  --color-heading: #ffffff;
+  --color-fg: #e2e8f0;
+  --color-fg-secondary: #cbd5e1;
+  --color-fg-muted: #94a3b8;
+  --color-faint: #64748b;
+
+  --color-line: #1e293b;
+  --color-line-soft: #1e293bcc;
+  --color-line-strong: #475569;
+
+  --color-accent: #38bdf8;
+  --color-accent-text: #7dd3fc;
+  --color-accent-hover: #7dd3fc;
+  --color-accent-contrast: #020617;
+
+  --color-hover-fill: #1e293bb3;
+  --color-bad: #f87171;
+  --color-good: #34d399;
+
+  color-scheme: dark;
+}
+
+:root {
+  color-scheme: light;
+  /* 滚动条拇指色：非 Tailwind token，仅供下方原生滚动条样式使用 */
+  --scroll-thumb: #cbd5e1;
+}
+
+html[data-theme="dark"] {
+  --scroll-thumb: #3f3f46;
 }
 
 html,
@@ -13,14 +101,12 @@ body,
 }
 
 body {
-  background-color: #0f141c;
-  color: #f1f5f9;
+  background-color: var(--color-base);
+  color: var(--color-fg);
   font-family: ui-sans-serif, system-ui, "PingFang SC", "Hiragino Sans GB",
     "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
-
-/* 配方命中卡片：静态语义色描边，无动画 */
 
 @keyframes bar-in {
   from {
@@ -38,14 +124,14 @@ body {
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #3f3f46 transparent;
+  scrollbar-color: var(--scroll-thumb) transparent;
 }
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #3f3f46;
+  background: var(--scroll-thumb);
   border-radius: 4px;
 }
 

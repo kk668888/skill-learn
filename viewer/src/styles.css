@@ -352,6 +352,28 @@ button {
   gap: 8px;
 }
 
+/* 学习总览：md 树下方的跨应用导航入口，与「操作」按钮同规格但中性描边，
+   ↗ 后缀表明跳往另一个页面（工具矩阵 /overview/）。 */
+.sidebar-overview-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.sidebar-overview-link:hover {
+  border-color: var(--accent);
+  background: var(--accent-weak);
+  color: var(--accent);
+}
+
 .download-error {
   margin: 0;
 }
@@ -801,6 +823,27 @@ mark {
 .welcome-metric b {
   color: var(--text);
   font-size: 16px;
+}
+
+/* 技能速览入口：库主的高频速查工具，做成轻量胶囊按钮，
+   不与右上角新人卡片抢第一视觉层级。 */
+.welcome-quick-ref {
+  margin-top: 16px;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+.welcome-quick-ref:hover {
+  border-color: var(--accent);
+  background: var(--accent-weak);
+  color: var(--accent);
 }
 
 .continue-card {

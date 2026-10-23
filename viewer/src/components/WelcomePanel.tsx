@@ -18,6 +18,9 @@ interface WelcomePanelProps {
 
 /** 总览页右上角的入门入口：指向 docs/ai-docs 下的 SDD 入门指南。 */
 const SDD_GUIDE_PATH = 'docs/ai-docs/SDD-入门指南.md'
+
+/** 技能速览：库主的高频速查工具，hero 统计行下的轻量直达入口。 */
+const SKILL_REFERENCE_PATH = 'docs/ai-docs/技能速览.md'
 function entryFile(suite: SuiteNode): FileNode | undefined {
   const files = collectFiles(suite.children)
   const quickStart = files.find((file) => file.path === `docs/skills/${suite.title}/技能快速入手.md`)
@@ -50,6 +53,9 @@ export function WelcomePanel({ tree, recentPaths, onNavigate }: WelcomePanelProp
   })
 
   const recentFile = recentPaths.length > 0 ? fileByPath.get(recentPaths[0]) : undefined
+  // 技能速览随资料到场而出现，与 SDD 卡同一识别方式（完整路径命中树内文件）
+  const skillReference = fileByPath.get(SKILL_REFERENCE_PATH)
+  const skillCount = collectSkills(tree).length
   // 右上角固定给 SDD 入门（新人第一入口）；指南尚未随部署更新的老环境
   // 回退到继续阅读卡片，保证角落不为空。
   const sddGuide = fileByPath.get(SDD_GUIDE_PATH)
@@ -90,8 +96,13 @@ export function WelcomePanel({ tree, recentPaths, onNavigate }: WelcomePanelProp
             从套件快速入手，跟做一次完整实践；再读源码与设计讲解，理解每一步为何存在。
           </p>
           <div className="welcome-metric" aria-label="文档统计">
-            <b>{suites.length}</b> 套件 <b>{collectSkills(tree).length}</b> 技能 <b>{allFiles.length}</b> 文档
+            <b>{suites.length}</b> 套件 <b>{skillCount}</b> 技能 <b>{allFiles.length}</b> 文档
           </div>
+          {skillReference && (
+            <button type="button" className="welcome-quick-ref" onClick={() => onNavigate(SKILL_REFERENCE_PATH)}>
+              技能速览 · {skillCount} 个技能一行速查 →
+            </button>
+          )}
         </div>
         {sddGuide ? (
           <button type="button" className="continue-card"

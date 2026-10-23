@@ -30,8 +30,9 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        overview: join(viewerRoot, 'index.html'),
-        library: join(viewerRoot, 'library', 'index.html'),
+        // 根路径是技能文库（库总览），学习总览矩阵挂在 /overview/
+        index: join(viewerRoot, 'index.html'),
+        overview: join(viewerRoot, 'overview', 'index.html'),
       },
     },
   },

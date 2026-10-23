@@ -112,3 +112,24 @@ it('最近打开显示「套件 · 文档名」消除重名歧义', () => {
   const item = screen.getAllByRole('button', { name: /openspec · / })[0]
   expect(item.textContent).toContain('最近打开')
 })
+
+// ---------- 技能速览入口：hero 统计行下的库主速查工具直达 ----------
+
+it('首页提供技能速览入口，点击直达速览文档', async () => {
+  const onNavigate = vi.fn()
+  const withRef = buildTree([
+    'docs/ai-docs/技能速览.md',
+    'docs/skills/superpowers/技能快速入手.md',
+    'skills/superpowers/brainstorming/SKILL.md',
+  ])
+  render(<WelcomePanel tree={withRef} recentPaths={[]} onNavigate={onNavigate} />)
+
+  await userEvent.setup().click(screen.getByRole('button', { name: /技能速览/ }))
+  expect(onNavigate).toHaveBeenCalledOnce()
+  expect(onNavigate).toHaveBeenCalledWith('docs/ai-docs/技能速览.md')
+})
+
+it('资料里没有速览文档时不渲染该入口，与 SDD 卡的缺省回退行为一致', () => {
+  render(<WelcomePanel tree={TREE} recentPaths={[]} onNavigate={vi.fn()} />)
+  expect(screen.queryByRole('button', { name: /技能速览/ })).toBeNull()
+})
