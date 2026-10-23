@@ -69,6 +69,7 @@ export function Sidebar({
       <div className="sidebar-brand">
         <span className="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span>
         <span className="brand-name">skill-learn</span>
+        <a className="overview-link" href="/">返回总览</a>
       </div>
       <div className="sidebar-head">
         <input

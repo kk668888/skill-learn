@@ -1,6 +1,6 @@
 # Portainer 部署说明
 
-本文说明如何把本项目的 Markdown 查看器构建为 Docker 镜像，并通过 Portainer Stack 在局域网中长期运行。部署完成后，局域网内的浏览器可以免登录阅读、搜索和上传文档。
+本文说明如何把学习总览与 Markdown 技能文库构建为 Docker 镜像，并通过 Portainer Stack 在局域网中长期运行。部署完成后，局域网内的浏览器可以免登录阅读、搜索和上传文档。
 
 - Stack 示例文件：[portainer-stack.yml](./portainer-stack.yml)
 - 部署不提供账号密码：能访问所发布端口的局域网用户都可以读写文档，请只在受信任的局域网使用。
@@ -31,7 +31,7 @@ sudo chown -R 1000:1000 docs/ai-docs docs/collections
 
 **情况 A：Portainer 管理的就是这台机器的 Docker Engine（最常见）**
 
-在项目根目录直接构建，构建上下文是仓库根：
+先按根目录 README 的步骤生成并校验 `offline/kit/`，再在项目根目录构建镜像。构建上下文是仓库根：
 
 ```bash
 docker build -t skill-learn-viewer:latest .
@@ -64,7 +64,7 @@ docker build -t skill-learn-viewer:latest .
 
 ## 4. 访问与更新
 
-**访问：** 在局域网任意设备浏览器打开 `http://<宿主机IP>:5188`（或你改过的宿主机端口），即可阅读、搜索、上传。上传的文档立即出现在对应分组并落盘到宿主机目录。
+**访问：** 在局域网任意设备浏览器打开 `http://<宿主机IP>:5188/`（或你改过的宿主机端口）进入学习总览；点“开始学习”进入 grill 快速入手，点“浏览技能文库”或直接打开 `/library/` 阅读、搜索、上传。上传的文档立即出现在对应分组并落盘到宿主机目录。
 
 **更新两类内容的做法不同：**
 
