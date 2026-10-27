@@ -9,10 +9,11 @@ import path from 'node:path';
 import { createInterface } from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
 import { verifyOfflineKit } from './offline-kit.mjs';
+import { inspectRtkInstall, installRtk, rtkUserDestination, windowsUserPath } from './rtk-install.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const MARKET = 'skill-learn-offline';
-const SUITES = ['superpowers', 'grill', 'frontend-design-premium', 'ponytail', 'openspec', 'impeccable', 'skill-creator'];
+const SUITES = ['superpowers', 'grill', 'frontend-design-premium', 'ponytail', 'openspec', 'impeccable', 'skill-creator', 'rtk'];
 
 function usage() {
   return [
@@ -21,15 +22,15 @@ function usage() {
     '  --list                 查看离线包套件、版本及支持平台',
     '  --tool <名称>          目标工具：claude 或 codex',
     '  --project <路径>       目标项目，默认当前目录',
-    '  --bundle <名称>        只处理指定套件，可重复使用；默认处理全部七套',
-    '  --scope project|user   Claude 插件与独立技能范围，默认 project；Codex 插件由宿主管理在用户级',
+    '  --bundle <名称>        只处理指定套件，可重复使用；默认处理全部八套',
+    '  --scope project|user   Claude 插件与独立技能范围，默认 project；RTK 固定为用户级',
     '  --dry-run             仅显示计划，不写入任何目标文件',
     '  --status              查看目标现状及冲突，不执行安装',
     '  --kit <路径>          离线目录，默认与脚本同级的 kit/',
     '  --host-bin <路径>     宿主 CLI 的可执行文件；Codex Desktop 建议显式传入',
     '  --help                显示帮助',
     '',
-    '预装前提：Node >= 20.19、目标工具本体。安装全程只读取本包及本地宿主。',
+    '预装前提：Node >= 20.19、目标工具本体。RTK 只安装程序，不自动启用 hook。安装全程只读取本包及本地宿主。',
   ].join('\n');
 }
 
@@ -137,14 +138,15 @@ export async function collectWizardOptions(io, kit = path.join(HERE, 'kit')) {
   // 项目目录按需询问：用户级且所选套件全部由宿主/用户主目录承载时，没有
   // 要写入的目标项目，再问只会让用户困惑（静默采用当前目录即可）。项目级
   // 范围、以及含 openspec/impeccable（天生项目级）的选择仍需明确目标。
-  const needsProject = scope === 'project' ||
+  const needsProject = (scope === 'project' && (bundles.length === 0 || bundles.some((name) => name !== 'rtk'))) ||
     bundles.some((name) => name === 'openspec' || name === 'impeccable');
   const project = needsProject
     ? await io.prompt(`目标项目目录 [${process.cwd()}]: `, process.cwd())
     : process.cwd();
   // Codex 宿主可能不在 PATH 上；留空沿用 findHost 的自动查找，找不到再报错。
   let hostBin = null;
-  if (tool === 'codex') {
+  // 只安装 RTK 时不需要宿主 CLI；避免向导为无关路径多问一步。
+  if (tool === 'codex' && (bundles.length === 0 || bundles.some((name) => name !== 'rtk'))) {
     const answer = await io.prompt('Codex 宿主 CLI 路径（留空自动查找）: ', '');
     hostBin = answer.length > 0 ? answer : null;
   }
@@ -318,6 +320,10 @@ async function pluginState(bundle, host, options, root) {
 }
 
 async function stateFor(bundle, host, options, root) {
+  if (bundle.method === 'executable') {
+    // RTK 始终落在当前 Windows 用户目录；--scope 只作用于已有的技能与插件。
+    return inspectRtkInstall(root, rtkUserDestination(), windowsUserPath);
+  }
   if (bundle.method === 'plugin') return pluginState(bundle, host, options, root);
   if (bundle.method === 'skill') {
     const destination = path.join(skillRoots(options.tool, options.project, options.scope).selected, 'skill-creator');
@@ -354,7 +360,9 @@ async function stateFor(bundle, host, options, root) {
 }
 
 async function execute(bundle, root, host, options, state, registered) {
-  if (bundle.method === 'skill') {
+  if (bundle.method === 'executable') {
+    await installRtk(root, rtkUserDestination(), windowsUserPath, process.env.PATH ?? '');
+  } else if (bundle.method === 'skill') {
     await mkdir(path.dirname(state.destination), { recursive: true });
     await cp(root, state.destination, { recursive: true, force: false, errorOnExist: true });
   } else if (bundle.method === 'plugin') {
@@ -471,6 +479,7 @@ export async function installOffline(argv = process.argv.slice(2), io = consoleI
   }
   console.log(`成功：${result.success.join('、') || '无'}`);
   console.log(`跳过：${result.skipped.join('、') || '无'}`);
+  if (result.success.includes('rtk')) console.log('RTK 已安装；请打开新终端运行 rtk --version。hook 可按需手动执行 rtk init。');
   if (result.failed) {
     console.error(`失败：${result.failed}`);
     console.error(`未执行：${result.pending.join('、') || '无'}`);

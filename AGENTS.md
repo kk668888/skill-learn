@@ -11,6 +11,25 @@
 | `CONTEXT.md` | 本项目术语表（按 `domain-modeling` 规范维护） |
 | `docs/skills/` | **技能文档**，见下 |
 
+## 网页更新包与内网部署规范
+
+以后凡是要求打包网页更新 ZIP、更新内网镜像或刷新映射目录，都按下面的完整流程执行，不需要用户再次提醒文档要随包发布：
+
+1. **先构建当前版本网页并准备离线文件。** 在项目根目录运行 `npm --prefix viewer run build:standalone`，得到当前的 `viewer/dist/` 和 `viewer/dist-server/main.mjs`。按根目录 `README.md` 的离线准备步骤生成并校验当前项目的 `offline/kit/`，再把 `offline/install-skills.mjs`、`offline/offline-kit.mjs`、`offline/offline-installer.mjs`、`offline/rtk-install.mjs` 和完整的 `offline/kit/` 放入网页暂存目录。制包脚本会核对暂存安装模块与 kit 清单是否和当前项目一致、逐文件校验 kit，并从当前项目读取网页构建结果；旧版但完整的暂存离线包也会被拒绝。
+2. **统一用 `deploy/build-web-update.ps1` 生成更新 ZIP，不手工挑选目录压缩。** 在项目根目录运行，例如：
+
+   ```powershell
+   powershell -NoProfile -ExecutionPolicy Bypass -File deploy/build-web-update.ps1 `
+     -StagingDir .\web-update-staging `
+     -OutputZip .\web-update-complete.zip
+   ```
+
+   脚本从当前仓库收录网页构建结果、完整的 `skills/`、`docs/skills/`、`docs/ai-docs/`、现有的 `docs/collections/` 和根级 Markdown；暂存目录提供与当前项目版本一致的离线安装文件。`/api/download` 生成的是资料与离线技能包，不含网页运行文件，不能代替网页更新 ZIP。
+3. **发布前验证 ZIP 和实际阅读能力。** 运行 `powershell -NoProfile -ExecutionPolicy Bypass -File tests/web-update-package.test.ps1`；核对 ZIP 内 `skills/`、`docs/skills/`、`docs/ai-docs/` 的文件数量与当前仓库一致；解压后启动查看器，确认 `/api/tree` 能列出技能源码与中文文档，`/api/doc` 能读取文档。任一目录缺失或验证失败，不交付更新包。
+4. **按部署方式更新。** 使用 `deploy/portainer-stack.yml` 时，`skills/` 和 `docs/skills/` 随镜像发布，需重建镜像并重建容器；`docs/ai-docs/`、`docs/collections/` 由宿主机挂载目录决定，不能因为 ZIP 或新镜像里有文件就认定线上可见。通过解压 ZIP 刷新映射目录时，保留宿主机已有的上传文档，更新后再检查上述接口。
+
+详细部署步骤见 `deploy/README.md`。交付时说明 ZIP 路径、文档数量和验证结果；没有访问内网环境时，不宣称内网已经恢复。
+
 ## 技能文档规范
 
 ### 触发短语

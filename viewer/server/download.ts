@@ -71,7 +71,7 @@ export async function sendMarkdownArchive(
       // 双击入口 安装.bat 来自安装清单，不经过这路扫描，不受过滤影响。
       ...scanPaths(root).filter((relative) => relative.includes('/')),
       ...installable,
-      ...(offline.length ? ['offline/offline-kit.mjs', 'offline/offline-installer.mjs', ...offline] : []),
+      ...(offline.length ? ['offline/offline-kit.mjs', 'offline/offline-installer.mjs', 'offline/rtk-install.mjs', ...offline] : []),
     ])].sort()
     const entries: Entry[] = paths.map((relativePath) => {
       const offlineEntry = relativePath.startsWith('offline/kit/')

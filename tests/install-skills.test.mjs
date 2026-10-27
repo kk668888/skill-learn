@@ -295,7 +295,7 @@ test('--help 与 --list 不要求目标工具并显示离线包内容', async ()
     const help = execFileSync(process.execPath, [SCRIPT, '--help'], { encoding: 'utf8' });
     assert.match(help, /--tool claude\|codex/);
     assert.match(help, /--dry-run/);
-    assert.match(help, /七套/);
+    assert.match(help, /八套/);
     const list = execFileSync(process.execPath, [SCRIPT, '--list', '--kit', state.kit], { encoding: 'utf8' });
     assert.match(list, /\[skill-creator\] test/);
     assert.match(list, new RegExp(`支持：codex / ${process.platform}-${process.arch}`));
@@ -498,7 +498,7 @@ test('默认读取脚本同级 kit 且不依赖当前目录', async () => {
       bundles: [{ name: 'skill-creator', suite: 'skill-creator', method: 'skill', version: 'test', source: 'fixture', license: 'MIT', input: 'skill-creator', output: 'payload/shared/skill-creator', required: ['SKILL.md'] }],
     } });
     await mkdir(path.join(root, 'offline'), { recursive: true });
-    for (const name of ['install-skills.mjs', 'offline-installer.mjs', 'offline-kit.mjs']) {
+    for (const name of ['install-skills.mjs', 'offline-installer.mjs', 'offline-kit.mjs', 'rtk-install.mjs']) {
       await cp(path.join(REPO, 'offline', name), path.join(root, 'offline', name));
     }
     const result = spawnSync(process.execPath, [path.join(root, 'offline', 'install-skills.mjs'), '--tool', 'codex',

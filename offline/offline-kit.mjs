@@ -46,7 +46,7 @@ function checkManifest(manifest) {
   const bundles = new Set();
   for (const bundle of manifest.bundles) {
     if (!bundle || !NAME.test(bundle.name) || bundles.has(bundle.name) ||
-        !['plugin', 'cli', 'engine', 'skill'].includes(bundle.method) ||
+        !['plugin', 'cli', 'engine', 'skill', 'executable'].includes(bundle.method) ||
         ![bundle.version, bundle.source, bundle.license].every((v) => typeof v === 'string' && v.trim())) {
       throw new Error('离线清单的套件版本、来源、安装方式或许可证无效');
     }

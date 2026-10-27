@@ -21,7 +21,7 @@ afterAll(async () => {
   rmSync(extractionRoot, { recursive: true, force: true })
 }, 60_000)
 
-it('真实下载包解压后可列出七套并预览，且包含平台引擎与完整依赖', async () => {
+it('真实下载包解压后可列出八套并预览，且包含平台引擎与完整依赖', async () => {
   server = createApiApp(PROJECT_ROOT).listen(0)
   await new Promise<void>((resolve) => server!.once('listening', resolve))
   const address = server.address()
@@ -39,6 +39,7 @@ it('真实下载包解压后可列出七套并预览，且包含平台引擎与�
   expect(entries['skills/impeccable/impeccable/scripts/modern-screenshot.umd.js']).toBeDefined()
   expect(entries['skills/openspec/commands/opsx/apply.md']).toBeDefined()
   expect(entries['offline/offline-installer.mjs']).toBeDefined()
+  expect(entries['offline/rtk-install.mjs']).toBeDefined()
   expect(entries['安装.bat']).toBeDefined()
   expect(entries['offline/kit/.claude-plugin/marketplace.json']).toBeDefined()
   expect(entries['offline/kit/.agents/plugins/marketplace.json']).toBeDefined()
@@ -47,13 +48,14 @@ it('真实下载包解压后可列出七套并预览，且包含平台引擎与�
   expect(entries['offline/kit/payload/claude/plugins/ponytail/skills/ponytail/SKILL.md']).toBeDefined()
   expect(entries['offline/kit/payload/codex/plugins/ponytail/.codex-plugin/plugin.json']).toBeDefined()
   expect(entries['offline/kit/payload/shared/impeccable/dist/universal/.agents/skills/impeccable/scripts/bin/windows-x64/impeccable.exe']).toBeDefined()
+  expect(entries['offline/kit/payload/shared/rtk/rtk.exe']).toBeDefined()
 
   const output = execFileSync(process.execPath, [join(extractionRoot, 'offline', 'install-skills.mjs'), '--list'], {
     cwd: extractionRoot,
     encoding: 'utf8',
   })
-  expect(output).toContain('发现 7 套')
-  for (const suite of ['skill-creator', 'frontend-design-premium', 'grill', 'impeccable', 'openspec', 'ponytail', 'superpowers']) {
+  expect(output).toContain('发现 8 套')
+  for (const suite of ['skill-creator', 'frontend-design-premium', 'grill', 'impeccable', 'openspec', 'ponytail', 'superpowers', 'rtk']) {
     expect(output).toContain(`[${suite}]`)
   }
   const preview = execFileSync(process.execPath, [

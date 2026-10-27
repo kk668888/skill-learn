@@ -10,6 +10,7 @@ import { cp, lstat, mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fingerprintTree } from './build-offline-kit.mjs';
+import { prepareRtkArchive } from './rtk-input.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ENGINE_SHA256 = 'c7dfa8846ec59ceb3a40be99b89fba29e4f3bdd16f3c412a33f19ad8a68ccff2';
@@ -19,7 +20,7 @@ const BUNDLE_SHA256 = '358c8b6bbc2113e9910bf4adbdba4523612453ec58d56a5c1b1465441
 const sourceFlags = [
   '--claude-superpowers', '--claude-grill', '--claude-premium', '--codex-superpowers',
   '--ponytail-plugin',
-  '--openspec-package', '--impeccable-engine', '--impeccable-bundle-archive',
+  '--openspec-package', '--impeccable-engine', '--impeccable-bundle-archive', '--rtk-archive',
 ];
 
 /** fs.cp 的过滤器只去掉缓存锁和仓库元数据，不丢弃 hook、依赖或隐藏 manifest。 */
@@ -109,6 +110,8 @@ async function main() {
     [path.join(HERE, 'skills/anthropics/skill-creator'), 'shared/skill-creator'],
   ];
   for (const [source, relative] of copies) await copyDistribution(source, path.join(staging, ...relative.split('/')));
+  // RTK 是平台程序而非技能目录；准备时校验官方 ZIP，内网包只带已验字节。
+  await prepareRtkArchive(options.get('--rtk-archive'), path.join(staging, 'shared/rtk'));
   const compiledBundle = path.join(staging, 'shared/impeccable/dist/universal');
   await mkdir(compiledBundle, { recursive: true });
   const extraction = spawnSync('tar', ['-xf', compiledArchive, '-C', compiledBundle], { encoding: 'utf8' });

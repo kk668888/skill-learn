@@ -11,6 +11,10 @@
 | `CONTEXT.md`         | 本项目术语表（按 `domain-modeling` 规范维护）                                                               |
 | `docs/skills/`       | **技能文档**，见下                                                                                          |
 
+## 网页更新包与内网部署规范
+
+打包网页更新 ZIP、更新内网镜像或刷新映射目录时，必须先读取并执行 `AGENTS.md` 的「网页更新包与内网部署规范」。使用 `deploy/build-web-update.ps1` 将当前仓库的 `skills/`、`docs/skills/`、`docs/ai-docs/` 连同网页运行文件一起打包，并在交付前核对 ZIP 内容和解压后的文档接口；不能只打包 `viewer/` 与 `offline/`。
+
 ## 技能文档规范
 
 ### 触发短语

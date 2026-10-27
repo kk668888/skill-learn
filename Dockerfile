@@ -19,7 +19,7 @@ COPY --from=build /app/viewer/dist-server ./dist-server
 
 WORKDIR /app
 COPY skills/ ./skills/
-COPY offline/install-skills.mjs offline/offline-kit.mjs offline/offline-installer.mjs ./offline/
+COPY offline/install-skills.mjs offline/offline-kit.mjs offline/offline-installer.mjs offline/rtk-install.mjs ./offline/
 # 离线发行目录在发布前预制；缺少目录时 Docker 构建直接失败。
 COPY offline/kit/ ./offline/kit/
 COPY docs/skills/ ./docs/skills/

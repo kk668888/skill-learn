@@ -75,6 +75,20 @@ docker build -t skill-learn-viewer:latest .
 
 注意：镜像里也打包了一份 `docs/ai-docs/` 快照，但运行时被宿主机绑定挂载遮住，**宿主机目录才是权威内容**。
 
+### 用网页更新 ZIP 更新内网映射目录
+
+如果内网通过解压网页更新 ZIP 来刷新映射目录，制包时必须同时带上 `skills/`、`docs/skills/` 和 `docs/ai-docs/`。只打包 `viewer/` 与 `offline/` 会让查看器启动正常，但目录树里没有技能及中文文档。维护机先按根目录 `README.md` 准备并校验当前项目的 `offline/kit/`，把当前项目的四个安装模块与完整 `offline/kit/` 放入暂存目录，再在项目根目录运行：
+
+```powershell
+npm --prefix viewer run build:standalone
+powershell -NoProfile -ExecutionPolicy Bypass -File deploy/build-web-update.ps1 `
+  -StagingDir .\web-update-staging `
+  -OutputZip .\web-update-complete.zip
+powershell -NoProfile -ExecutionPolicy Bypass -File tests/web-update-package.test.ps1
+```
+
+脚本从当前仓库重新收录本次网页构建、技能源码、技能文档、AI 文档和根级 Markdown，并核对暂存安装模块与 kit 清单是否和当前项目一致、逐文件校验 kit 与 ZIP 条目；资料目录缺失、离线文件损坏或暂存包版本过旧时直接报错。解压新包后，先确认 `skills/`、`docs/skills/`、`docs/ai-docs/` 均存在，再替换内网映射目录。若仍采用本页 Stack 示例的 `docs/ai-docs` 宿主机挂载，挂载目录会遮住包中的同名目录，应同步检查宿主机 `docs/ai-docs/` 是否有文章。
+
 ## 5. 回滚
 
 - 回滚程序：把 `VIEWER_IMAGE` 改回旧镜像标签（或重新构建旧版本代码），重新 Deploy the stack 即可。

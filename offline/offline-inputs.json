@@ -4,12 +4,12 @@
     {
       "agent": "claude",
       "platform": "win32-x64",
-      "bundles": ["superpowers-claude", "grill-claude", "frontend-design-premium-claude", "ponytail-claude", "openspec", "impeccable", "skill-creator"]
+      "bundles": ["superpowers-claude", "grill-claude", "frontend-design-premium-claude", "ponytail-claude", "openspec", "impeccable", "skill-creator", "rtk"]
     },
     {
       "agent": "codex",
       "platform": "win32-x64",
-      "bundles": ["superpowers-codex", "grill-codex", "frontend-design-premium-codex", "ponytail-codex", "openspec", "impeccable", "skill-creator"]
+      "bundles": ["superpowers-codex", "grill-codex", "frontend-design-premium-codex", "ponytail-codex", "openspec", "impeccable", "skill-creator", "rtk"]
     }
   ],
   "bundles": [
@@ -56,6 +56,10 @@
     {
       "name": "skill-creator", "suite": "skill-creator", "method": "skill", "version": "snapshot-58787efca31b", "source": "repo-local:skills/anthropics/skill-creator@0882c9caec3f5c1e05a291f242edc9d07acd0516", "license": "Apache-2.0",
       "input": "shared/skill-creator", "inputSha256": "58787efca31bdd736bf804f01b8bbe4d8fa784128e13ab546313cd33ec854b44", "output": "payload/shared/skill-creator", "required": ["SKILL.md", "LICENSE.txt"]
+    },
+    {
+      "name": "rtk", "suite": "rtk", "method": "executable", "version": "1.1.0", "source": "https://github.com/rtk-ai/rtk/releases/download/v1.1.0/rtk-x86_64-pc-windows-msvc.zip (SHA-256 c9a8f7a8bad471e64a343314168f38d2399a06fa327cdf5772fb0e645d99ea6f)", "license": "Apache-2.0 AND BUSL-1.1",
+      "input": "shared/rtk", "inputSha256": "2aac0072e8ac4eee55d328a796526c9189cad96e5d9ad819a4c31ae4957e044d", "output": "payload/shared/rtk", "required": ["rtk.exe", "LICENSE", "LICENSE-ENGINE"]
     }
   ]
 }

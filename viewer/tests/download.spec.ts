@@ -46,6 +46,7 @@ beforeEach(async () => {
   put('offline/install-skills.mjs', '#!/usr/bin/env node\n')
   put('offline/offline-kit.mjs', 'export const fixture = true\n')
   put('offline/offline-installer.mjs', 'export const fixture = true\n')
+  put('offline/rtk-install.mjs', 'export const fixture = true\n')
   putOfflineFixture()
   put('docs/skills/demo/中文版.md', '# 中文版\n')
   put('docs/ai-docs/笔记.md', Buffer.from([0xef, 0xbb, 0xbf, 0x23, 0x20, 0x41, 0x0d, 0x0a]))
@@ -83,6 +84,7 @@ it('将全部可浏览 Markdown 与可安装的技能源码按原路径和原始
     'offline/install-skills.mjs',
     'offline/offline-kit.mjs',
     'offline/offline-installer.mjs',
+    'offline/rtk-install.mjs',
     'offline/kit/complete.json',
     'offline/kit/manifest.json',
     'offline/kit/payload/plugin/.claude-plugin/plugin.json',
