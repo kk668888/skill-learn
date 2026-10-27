@@ -24,8 +24,8 @@
      -OutputZip .\web-update-complete.zip
    ```
 
-   脚本从当前仓库收录网页构建结果、完整的 `skills/`、`docs/skills/`、`docs/ai-docs/`、现有的 `docs/collections/` 和根级 Markdown；暂存目录提供与当前项目版本一致的离线安装文件。`/api/download` 生成的是资料与离线技能包，不含网页运行文件，不能代替网页更新 ZIP。
-3. **发布前验证 ZIP 和实际阅读能力。** 运行 `powershell -NoProfile -ExecutionPolicy Bypass -File tests/web-update-package.test.ps1`；核对 ZIP 内 `skills/`、`docs/skills/`、`docs/ai-docs/` 的文件数量与当前仓库一致；解压后启动查看器，确认 `/api/tree` 能列出技能源码与中文文档，`/api/doc` 能读取文档。任一目录缺失或验证失败，不交付更新包。
+   脚本从当前仓库收录网页构建结果、完整的 `skills/`、`docs/skills/`、`docs/ai-docs/`、现有的 `docs/collections/`、根级 Markdown 和包根 Windows 双击入口 `安装.bat`；暂存目录提供与当前项目版本一致的离线安装文件。`/api/download` 生成的是资料与离线技能包，不含网页运行文件，不能代替网页更新 ZIP。
+3. **发布前验证 ZIP 和实际阅读能力。** 运行 `powershell -NoProfile -ExecutionPolicy Bypass -File tests/web-update-package.test.ps1`；核对 ZIP 内 `安装.bat`、`offline/install-skills.mjs` 均存在，`skills/`、`docs/skills/`、`docs/ai-docs/` 的文件数量与当前仓库一致；解压后启动查看器，确认 `/api/tree` 能列出技能源码与中文文档，`/api/doc` 能读取文档。任一目录或安装入口缺失、验证失败时，不交付更新包。
 4. **按部署方式更新。** 使用 `deploy/portainer-stack.yml` 时，`skills/` 和 `docs/skills/` 随镜像发布，需重建镜像并重建容器；`docs/ai-docs/`、`docs/collections/` 由宿主机挂载目录决定，不能因为 ZIP 或新镜像里有文件就认定线上可见。通过解压 ZIP 刷新映射目录时，保留宿主机已有的上传文档，更新后再检查上述接口。
 
 详细部署步骤见 `deploy/README.md`。交付时说明 ZIP 路径、文档数量和验证结果；没有访问内网环境时，不宣称内网已经恢复。

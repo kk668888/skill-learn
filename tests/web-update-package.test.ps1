@@ -48,6 +48,8 @@ try {
     Write-FixtureFile 'docs/skills/demo/demo-中文版.md' '中文文档'
     Write-FixtureFile 'skills/demo/demo/SKILL.md' '# 源码'
     Write-FixtureFile 'README.md' '# 项目说明'
+    Write-FixtureFile '安装.bat' '@echo off
+rem 当前版本安装入口'
 
     $builder = Join-Path (Split-Path -Parent $PSScriptRoot) 'deploy/build-web-update.ps1'
     & $builder -ProjectRoot $project -StagingDir $stage -OutputZip $archive
@@ -60,6 +62,7 @@ try {
             'viewer/dist/current.js',
             'viewer/dist-server/main.mjs',
             'offline/install-skills.mjs',
+            '安装.bat',
             'offline/kit/manifest.json',
             'docs/ai-docs/新文章.md',
             'docs/collections/新分组/新文章.md',
@@ -87,9 +90,29 @@ try {
         } finally {
             $reader.Dispose()
         }
+        $installReader = New-Object System.IO.StreamReader($zip.GetEntry('安装.bat').Open())
+        try {
+            if ($installReader.ReadToEnd() -notlike '*当前版本安装入口*') {
+                throw '更新包没有使用当前项目的双击安装入口'
+            }
+        } finally {
+            $installReader.Dispose()
+        }
     } finally {
         $zip.Dispose()
     }
+    # 包根双击入口缺失时不能生成表面完整、实际不便安装的 ZIP。
+    Remove-Item -LiteralPath (Join-Path $project '安装.bat') -Force
+    $missingLauncher = Join-Path $project 'missing-launcher.zip'
+    try {
+        & $builder -ProjectRoot $project -StagingDir $stage -OutputZip $missingLauncher
+        throw '缺少安装入口时制包没有失败'
+    } catch {
+        if ($_.Exception.Message -notlike '*安装.bat*') { throw }
+    }
+    if (Test-Path -LiteralPath $missingLauncher) { throw '缺少安装入口的 ZIP 被发布了' }
+    Write-FixtureFile '安装.bat' '@echo off
+rem 当前版本安装入口'
     # 暂存模块即使存在且可读，只要不是当前仓库版本，也不能混入新页面的 ZIP。
     Write-FixtureFile 'stage/offline/rtk-install.mjs' '// stale RTK installer'
     $staleModule = Join-Path $project 'stale-module.zip'

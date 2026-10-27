@@ -87,7 +87,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File deploy/build-web-update.ps1 
 powershell -NoProfile -ExecutionPolicy Bypass -File tests/web-update-package.test.ps1
 ```
 
-脚本从当前仓库重新收录本次网页构建、技能源码、技能文档、AI 文档和根级 Markdown，并核对暂存安装模块与 kit 清单是否和当前项目一致、逐文件校验 kit 与 ZIP 条目；资料目录缺失、离线文件损坏或暂存包版本过旧时直接报错。解压新包后，先确认 `skills/`、`docs/skills/`、`docs/ai-docs/` 均存在，再替换内网映射目录。若仍采用本页 Stack 示例的 `docs/ai-docs` 宿主机挂载，挂载目录会遮住包中的同名目录，应同步检查宿主机 `docs/ai-docs/` 是否有文章。
+脚本从当前仓库重新收录本次网页构建、技能源码、技能文档、AI 文档、根级 Markdown 和包根的 `安装.bat`，并核对暂存安装模块与 kit 清单是否和当前项目一致、逐文件校验 kit 与 ZIP 条目；资料目录或安装入口缺失、离线文件损坏、暂存包版本过旧时直接报错。解压新包后，先确认 `安装.bat`、`offline/install-skills.mjs`、`skills/`、`docs/skills/`、`docs/ai-docs/` 均存在，再替换内网映射目录。若仍采用本页 Stack 示例的 `docs/ai-docs` 宿主机挂载，挂载目录会遮住包中的同名目录，应同步检查宿主机 `docs/ai-docs/` 是否有文章。
 
 ## 5. 回滚
 

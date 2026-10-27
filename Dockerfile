@@ -20,6 +20,8 @@ COPY --from=build /app/viewer/dist-server ./dist-server
 WORKDIR /app
 COPY skills/ ./skills/
 COPY offline/install-skills.mjs offline/offline-kit.mjs offline/offline-installer.mjs offline/rtk-install.mjs ./offline/
+# 网页下载器会从包根扫描 Windows 双击安装入口；镜像必须保留它。
+COPY 安装.bat ./
 # 离线发行目录在发布前预制；缺少目录时 Docker 构建直接失败。
 COPY offline/kit/ ./offline/kit/
 COPY docs/skills/ ./docs/skills/

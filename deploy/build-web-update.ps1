@@ -122,6 +122,14 @@ foreach ($file in Get-ChildItem -LiteralPath $project -File -Filter '*.md') {
     $files[$file.Name] = $file.FullName
 }
 
+# Windows 双击入口位于包根，不属于 Markdown 或离线 kit。必须从当前项目
+# 明确收录并覆盖暂存副本；否则 ZIP 虽有 Node 安装模块，用户却找不到安装脚本。
+$launcher = Join-Path $project '安装.bat'
+if (-not (Test-Path -LiteralPath $launcher -PathType Leaf)) {
+    throw '当前项目缺少 Windows 安装入口：安装.bat'
+}
+$files['安装.bat'] = $launcher
+
 $outputDir = Split-Path -Parent $output
 New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 $temporary = Join-Path $outputDir ('.web-update-' + [guid]::NewGuid().ToString('N') + '.zip')
